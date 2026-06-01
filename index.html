@@ -75,10 +75,10 @@
         .salary-slip { background: rgba(255, 255, 255, 0.35); border: 1px dashed rgba(0,0,0,0.15); padding: 20px; border-radius: 6px; margin-top: 15px; }
         .slip-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; color: #111; align-items: center; }
         
-        /* ✨ 用來排版小圖示與文字的樣式 */
+        /* 用來排版小圖示與文字的樣式 */
         .slip-label { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .slip-label i { width: 18px; text-align: center; color: #007bff; } /* 圖示統一顏色與寬度 */
-        .slip-label i.fa-minus-circle { color: #d94126; } /* 扣項圖示變紅色 */
+        .slip-label i { width: 18px; text-align: center; color: #007bff; } 
+        .slip-label i.fa-minus-circle { color: #d94126; } 
         
         .slip-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: bold; font-size: 1.25em; color: #d9534f; border-top: 2px solid #333; margin-top: 10px; align-items: center; }
         .error-msg { color: #d9534f; font-size: 14px; margin-top: 8px; text-align: center; display: none; font-weight: bold; }
@@ -135,7 +135,7 @@
             <div class="error-msg" id="error-txt">密碼錯誤！</div>
         </div>
         <button class="btn-primary" id="submit-pwd-btn" onclick="verifyPassword()">確認送出</button>
-        <button class="btn-secondary" onclick="goBack('page-main')">返回主畫面</button>
+        <button class="btn-secondary" onclick="goBackToMain()">返回主畫面</button>
     </div>
 
     <div id="page-slip" class="page">
@@ -225,7 +225,15 @@
                     btn.onclick = () => selectEmployee(name);
                     employeeBox.appendChild(btn);
                 });
-                switchPage('page-main');
+                
+                /* ✨ 智慧記憶優化：檢查上次這台手機有沒有查過人名 */
+                const savedName = localStorage.getItem('lastSearchedEmployee');
+                if (savedName && allEmployees.includes(savedName)) {
+                    // 如果有記憶的名字，載入完直接自動幫他點進去驗證頁！
+                    selectEmployee(savedName);
+                } else {
+                    switchPage('page-main');
+                }
             } else {
                 alert("載入失敗：" + data.message);
             }
@@ -283,6 +291,9 @@
             btn.disabled = false;
 
             if (data.status === "success") {
+                /* ✨ 智慧記憶優化：密碼驗證成功，順便把這個名字偷偷刻進手機瀏覽器裡 */
+                localStorage.setItem('lastSearchedEmployee', currentSelectedEmployee);
+
                 const empData = data.data;
                 
                 document.getElementById('slip-title').innerText = `${selectedMonth} 鳳麟竹南店 薪資明細`;
@@ -314,8 +325,19 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
     }
-    function goBack(pageId) { switchPage(pageId); }
-    function logout() { currentSelectedEmployee = ""; switchPage('page-main'); }
+    
+    /* ✨ 返回主畫面時，順便把舊的記憶洗掉（防止有人卡在別人的驗證頁） */
+    function goBackToMain() {
+        localStorage.removeItem('lastSearchedEmployee');
+        currentSelectedEmployee = "";
+        switchPage('page-main');
+    }
+    
+    /* 安全登出切回主畫面 */
+    function logout() { 
+        currentSelectedEmployee = ""; 
+        switchPage('page-main'); 
+    }
 </script>
 
 </body>
