@@ -4,180 +4,234 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鳳麟 員工薪資查詢系統</title>
-    <!-- 引入 Icon 庫與截圖必備的 html2canvas 庫 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* ==================================================== */
-        /* 網頁外觀樣式調整區                                   */
+        /* Apple 官網極簡風格規範                               */
         /* ==================================================== */
         :root {
-            --bg-glass: rgba(255, 255, 255, 0.65);
-            --border-glass: rgba(255, 255, 255, 0.45);
-            --text-color: #111;
-            --label-color: #333;
-            --input-bg: rgba(255, 255, 255, 0.5);
-            --input-border: rgba(0, 0, 0, 0.12);
-            --btn-sec-bg: transparent;
-            --btn-sec-border: rgba(0,0,0,0.15);
-            --btn-sec-text: #333;
-            --slip-bg: rgba(255, 255, 255, 0.35);
-            --slip-border: rgba(0,0,0,0.15);
+            --apple-bg: #f5f5f7;
+            --apple-card: rgba(255, 255, 255, 0.85);
+            --apple-border: rgba(0, 0, 0, 0.08);
+            --apple-text: #1d1d1f;
+            --apple-text-gray: #86868b;
+            --apple-blue: #0071e3;
+            --apple-blue-hover: #0077ed;
+            --apple-danger: #ff3b30;
+            --input-bg: rgba(0, 0, 0, 0.02);
+            --input-border: rgba(0, 0, 0, 0.15);
         }
 
-        /* 🌙 深色模式的顏色變數設定 */
+        /* 🌙 Apple 深色模式 (Midnight Black) */
         [data-theme="dark"] {
-            --bg-glass: rgba(20, 20, 20, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.15);
-            --text-color: #f5f5f5;
-            --label-color: #ccc;
-            --input-bg: rgba(0, 0, 0, 0.4);
+            --apple-bg: #000000;
+            --apple-card: rgba(28, 28, 30, 0.85);
+            --apple-border: rgba(255, 255, 255, 0.1);
+            --apple-text: #f5f5f7;
+            --apple-text-gray: #86868b;
+            --apple-blue: #2997ff;
+            --apple-blue-hover: #43a4ff;
+            --apple-danger: #ff453a;
+            --input-bg: rgba(255, 255, 255, 0.05);
             --input-border: rgba(255, 255, 255, 0.2);
-            --btn-sec-bg: rgba(255,255,255,0.05);
-            --btn-sec-border: rgba(255,255,255,0.2);
-            --btn-sec-text: #eee;
-            --slip-bg: rgba(0, 0, 0, 0.3);
-            --slip-border: rgba(255,255,255,0.15);
         }
 
         body {
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background-image: url('https://private-user-images.githubusercontent.com/289449801/600623498-4cf124e7-77ff-46e5-bd48-4ae86b56dcec.JPG?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3.SampleURL_Cleaned');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--apple-bg);
+            background-image: none; /* 移除複雜背景圖，改為 Apple 標誌性純色底 */
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            transition: background 0.3s;
+            color: var(--apple-text);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* 拿掉五顏六色流光包裝，回歸乾淨極簡的卡片樣式 */
+        /* Apple 核心卡片 - 清爽夾層結構 */
         .container { 
             position: relative;
-            background: var(--bg-glass); 
-            backdrop-filter: blur(25px) saturate(180%); 
-            -webkit-backdrop-filter: blur(25px) saturate(180%); 
-            border-radius: 16px; 
-            border: 1px solid var(--border-glass); 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            padding: 30px; 
+            background: var(--apple-card); 
+            backdrop-filter: blur(30px) saturate(180%); 
+            -webkit-backdrop-filter: blur(30px) saturate(180%); 
+            border-radius: 18px; 
+            border: 0.5px solid var(--apple-border); 
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+            padding: 40px 32px; 
             width: 100%; 
-            max-width: 450px;
+            max-width: 420px;
             box-sizing: border-box; 
-            transition: all 0.3s;
+            transition: all 0.4s ease;
         }
 
-        /* 右上角切換黑白模式的小按鈕 */
+        /* 右上角極簡黑白模式切換鈕 */
         .theme-toggle-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             background: transparent;
             border: none;
-            color: var(--text-color);
-            font-size: 20px;
+            color: var(--apple-text-gray);
+            font-size: 13px;
+            letter-spacing: -0.01em;
             cursor: pointer;
-            transition: transform 0.2s;
-            z-index: 10;
+            font-weight: 400;
         }
-        .theme-toggle-btn:hover { transform: scale(1.2); }
+        .theme-toggle-btn:hover { color: var(--apple-blue); }
 
-        h2 { text-align: center; color: var(--text-color); margin-bottom: 20px; font-weight: 800; }
+        /* Apple 經典粗體字標題 */
+        h2 { 
+            text-align: center; 
+            color: var(--apple-text); 
+            margin-top: 0;
+            margin-bottom: 24px; 
+            font-size: 26px;
+            font-weight: 700; 
+            letter-spacing: -0.03em;
+        }
+        
         .page { display: none; }
         .page.active { display: block; }
-        .input-group { margin-bottom: 20px; text-align: left; position: relative; }
-        label { display: block; margin-bottom: 8px; color: var(--label-color); font-weight: bold; }
         
-        /* 輸入框玻璃化 */
-        select, input[type="text"], input[type="password"], input[type="tel"] { 
+        .input-group { margin-bottom: 28px; text-align: left; }
+        label { display: block; margin-bottom: 10px; color: var(--apple-text-gray); font-size: 13px; font-weight: 500; }
+        
+        /* Apple 風格極簡下拉選單 */
+        select { 
             width: 100%; 
-            padding: 12px; 
+            padding: 12px 16px; 
             border: 1px solid var(--input-border); 
-            border-radius: 8px; 
+            border-radius: 10px; 
             box-sizing: border-box; 
             font-size: 16px; 
             background-color: var(--input-bg); 
-            color: var(--text-color);
-            transition: all 0.2s;
+            color: var(--apple-text);
+            font-weight: 400;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: all 0.3s ease;
         }
-        select:focus, input:focus { border-color: #007bff; outline: none; background-color: var(--bg-glass); }
+        select:focus { border-color: var(--apple-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
         
-        /* 密碼眼睛樣式 */
+        /* 密碼輸入欄改為極簡優雅風格 */
         .password-wrapper { position: relative; width: 100%; }
-        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-color); font-size: 18px; z-index: 10; }
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 14px 0;
+            border: none;
+            border-bottom: 1px solid var(--input-border);
+            background: transparent;
+            box-sizing: border-box;
+            font-size: 18px;
+            color: var(--apple-text);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus { border-bottom-color: var(--apple-blue); }
         
-        /* 記住密碼勾選區 */
-        .remember-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; color: var(--label-color); font-weight: bold; cursor: pointer; user-select: none; }
-        .remember-wrapper input { width: 16px; height: 16px; cursor: pointer; }
+        /* 小眼睛改為純文字超連結樣式 */
+        .toggle-password-txt { 
+            position: absolute; 
+            right: 0; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            cursor: pointer; 
+            color: var(--apple-blue); 
+            font-size: 13px; 
+            font-weight: 400;
+        }
+        
+        .remember-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--apple-text-gray); cursor: pointer; user-select: none; }
+        .remember-wrapper input { width: 15px; height: 15px; border-radius: 4px; accent-color: var(--apple-blue); }
 
-        /* 姓名按鈕列表 */
-        .employee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-height: 260px; overflow-y: auto; padding: 5px; margin-top: 10px; }
-        .emp-btn { background-color: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 15px; font-size: 16px; cursor: pointer; text-align: center; transition: all 0.2s; font-weight: bold; color: var(--text-color); }
-        .emp-btn:hover { border-color: #007bff; background-color: #007bff; color: white; box-shadow: 0 4px 12px rgba(0,123,255,0.25); }
+        /* 姓名列表改為乾淨的膠囊按鈕 */
+        .employee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-height: 260px; overflow-y: auto; padding: 4px; margin-top: 10px; }
+        .emp-btn { background-color: var(--input-bg); border: 1px solid transparent; border-radius: 10px; padding: 14px; font-size: 15px; cursor: pointer; text-align: center; transition: all 0.2s ease; font-weight: 500; color: var(--apple-text); }
+        .emp-btn:hover { background-color: rgba(128,128,128,0.1); }
         
-        .btn-primary { width: 100%; padding: 12px; background-color: #007bff; border: none; color: white; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,123,255,0.2); }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn-secondary { width: 100%; padding: 12px; background-color: var(--btn-sec-bg); border: 1px solid var(--btn-sec-border); color: var(--btn-sec-text); border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-        .btn-secondary:hover { background-color: rgba(128,128,128,0.1); }
+        /* Apple 標誌性寶藍色膠囊按鈕 */
+        .btn-primary { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: var(--apple-blue); 
+            border: none; 
+            color: white; 
+            border-radius: 22px; /* 經典膠囊弧度 */
+            font-size: 16px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            letter-spacing: -0.01em;
+            transition: background-color 0.2s ease; 
+        }
+        .btn-primary:hover { background-color: var(--apple-blue-hover); }
         
-        /* 明細表外觀 */
-        .salary-slip { background: var(--slip-bg); border: 1px dashed var(--slip-border); padding: 20px; border-radius: 6px; margin-top: 15px; }
-        .slip-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(128,128,128,0.15); font-size: 15px; color: var(--text-color); align-items: center; }
+        /* Apple 官網經典文字超連結按鈕 (Link Style) */
+        .btn-link {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--apple-blue);
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 18px;
+            transition: opacity 0.2s;
+        }
+        .btn-link:hover { text-decoration: underline; opacity: 0.8; }
         
-        .slip-label { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .slip-label i { width: 18px; text-align: center; color: #007bff; } 
-        .slip-label i.fa-minus-circle { color: #d94126; } 
+        /* 明細表外觀 - 移除彩色小圖示，純文字靠左靠右 */
+        .salary-slip { margin-top: 10px; }
+        .slip-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 0.5px solid var(--apple-border); font-size: 15px; color: var(--apple-text); align-items: center; }
+        .slip-label { color: var(--apple-text-gray); font-weight: 400; }
+        .slip-value { font-weight: 500; }
         
-        .slip-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: bold; font-size: 1.2em; color: #d9534f; border-top: 2px solid var(--text-color); margin-top: 10px; align-items: center; }
-        .error-msg { color: #d9534f; font-size: 14px; margin-top: 8px; text-align: center; display: none; font-weight: bold; }
-        .deduct-style { color: #d94126; font-weight: bold; }
+        /* 實領薪資 - 大膽粗體字突顯 */
+        .slip-total { display: flex; justify-content: space-between; padding: 20px 0; font-weight: 700; font-size: 20px; color: var(--apple-text); border-top: 1px solid var(--apple-text); margin-top: 16px; align-items: center; }
+        .deduct-style { color: var(--apple-danger); }
+        
+        .error-msg { color: var(--apple-danger); font-size: 13px; margin-top: 10px; text-align: center; display: none; font-weight: 500; }
+        .welcome-msg { text-align: center; font-size: 13px; color: var(--apple-text-gray); margin-top: -14px; margin-bottom: 24px; line-height: 1.4; }
 
-        /* 智慧問候語特製樣式 */
-        .welcome-msg { text-align: center; font-size: 14px; color: #007bff; font-weight: bold; margin-top: -10px; margin-bottom: 15px; }
-
-        /* LINE 下載優化的彈出提示窗樣式 */
+        /* LINE 彈窗改為蘋果通知中心風格 */
         .line-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.4);
             z-index: 9999;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            box-sizing: border-box;
         }
         .line-modal-content {
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            padding: 25px;
-            border-radius: 12px;
+            background: var(--apple-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 0.5px solid var(--apple-border);
+            padding: 24px;
+            border-radius: 14px;
             text-align: center;
-            color: var(--text-color);
-            max-width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            max-width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
 
-        /* 生成的實體圖片預覽區（方便長按儲存） */
         #img-preview-area {
-            margin-top: 15px;
+            margin-top: 20px;
             display: none;
             text-align: center;
-            border: 2px dashed #28a745;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(40, 167, 69, 0.05);
+            border-top: 0.5px solid var(--apple-border);
+            padding-top: 16px;
         }
         #img-preview-area img {
             width: 100%;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
         }
 
         .loading-dots::after {
@@ -185,7 +239,6 @@
             animation: dots 1.5s infinite steps(4);
             display: inline-block;
             width: 12px;
-            text-align: left;
         }
         @keyframes dots {
             0% { content: ''; }
@@ -199,113 +252,106 @@
 
 <div class="container" id="main-card">
     
-    <!-- 切換太陽與月亮按鈕 -->
-    <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn">深色模式</button>
 
     <div id="page-loading" class="page active">
-        <h2>系統連線中</h2>
-        <div style="text-align:center; color: var(--text-color); padding:20px;">
-            <span class="loading-dots" style="font-weight: bold; color: #007bff;">系統加載中</span><br>
-            <span style="font-size: 0.85em; opacity: 0.8;"><br>( 第一次開啟需載入約 5-10 秒，請耐心稍候喔！ )</span>
+        <h2>鳳麟 薪資查詢</h2>
+        <div style="text-align:center; padding:20px; font-size: 14px; color: var(--apple-text-gray);">
+            <span class="loading-dots">安全連線中</span>
         </div>
     </div>
 
     <div id="page-main" class="page">
-        <h2>鳳麟 竹南店 薪資查詢系統</h2>
+        <h2>薪資查詢系統</h2>
         <div class="welcome-msg" id="greeting-txt"></div>
         <div class="input-group">
-            <label for="month-select">1. 選擇查詢月份</label>
+            <label for="month-select">選擇查詢月份</label>
             <select id="month-select"></select>
         </div>
-        <label>2. 點擊您的姓名</label>
+        <label>選擇您的姓名</label>
         <div class="employee-grid" id="employee-box"></div>
     </div>
 
     <div id="page-auth" class="page">
         <h2 id="auth-title">身分驗證</h2>
-        <div class="input-group">
-            <label for="password"><i class="fas fa-lock"></i> 密碼 <span style="color: #d94126;">（身分證後4碼）</span></label>
+        <div class="input-group" style="margin-top: 10px;">
+            <label for="password">請輸入身分證後 4 碼</label>
             <div class="password-wrapper">
-                <input type="password" id="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="請輸入4位數字密碼" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                <i class="fa-solid fa-eye toggle-password" id="eye-icon" onclick="togglePasswordVisibility()"></i>
+                <input type="password" id="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <span class="toggle-password-txt" id="eye-icon" onclick="togglePasswordVisibility()">顯示</span>
             </div>
             <label class="remember-wrapper">
-                <input type="checkbox" id="remember-pwd"> 記住我的密碼
+                <input type="checkbox" id="remember-pwd"> 記住密碼
             </label>
-            <div class="error-msg" id="error-txt">密碼錯誤！</div>
+            <div class="error-msg" id="error-txt">密碼不正確。</div>
         </div>
-        <button class="btn-primary" id="submit-pwd-btn" onclick="verifyPassword()">確認送出</button>
-        <button class="btn-secondary" onclick="goBack('page-main')">返回主畫面</button>
+        <button class="btn-primary" id="submit-pwd-btn" onclick="verifyPassword()">驗證</button>
+        <button class="btn-link" onclick="goBack('page-main')">返回主畫面</button>
     </div>
 
     <div id="page-slip" class="page">
-        <!-- 給截圖功能指定的區塊 -->
-        <div id="capture-area" style="padding: 10px; border-radius: 8px;">
-            <h2 id="slip-title" style="margin-top: 10px;">薪資明細表</h2>
+        <div id="capture-area" style="padding: 10px; border-radius: 12px;">
+            <h2 id="slip-title" style="margin-top: 10px; text-align: left; font-size: 24px;">薪資明細表</h2>
             <div class="salary-slip">
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-user"></i><strong>員工姓名：</strong></span>
-                    <span id="slip-name" style="font-weight: bold;"></span>
+                    <span class="slip-label">員工姓名</span>
+                    <span id="slip-name" class="slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-coins"></i><span>時薪：</span></span>
-                    <span id="slip-wage"></span>
+                    <span class="slip-label">時薪</span>
+                    <span id="slip-wage" class="slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-clock"></i><span>時數：</span></span>
-                    <span id="slip-hours"></span>
+                    <span class="slip-label">本月時數</span>
+                    <span id="slip-hours" class="slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-business-time"></i><span>遲到(分)：</span></span>
-                    <span id="slip-latemin"></span>
+                    <span class="slip-label">遲到 (分鐘)</span>
+                    <span id="slip-latemin" class="slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-minus-circle"></i><span>預支：</span></span>
-                    <span id="slip-advance" class="deduct-style"></span>
+                    <span class="slip-label">預支項目</span>
+                    <span id="slip-advance" class="deduct-style slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-minus-circle"></i><span>營損：</span></span>
-                    <span id="slip-loss" class="deduct-style"></span>
+                    <span class="slip-label">營運損失</span>
+                    <span id="slip-loss" class="deduct-style slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-triangle-exclamation"></i><span>缺失：</span></span>
-                    <span id="slip-missing"></span>
+                    <span class="slip-label">缺失次數</span>
+                    <span id="slip-missing" class="slip-value"></span>
                 </div>
                 <div class="slip-row">
-                    <span class="slip-label"><i class="fa-solid fa-circle-exclamation"></i><span>遲到次數：</span></span>
-                    <span id="slip-latecount"></span>
+                    <span class="slip-label">遲到次數</span>
+                    <span id="slip-latecount" class="slip-value"></span>
                 </div>
                 <div class="slip-total">
-                    <span class="slip-label" style="color: #333;"><i class="fa-solid fa-wallet" style="color: #d9534f;"></i><span>實領薪資(不含獎金)：</span></span>
+                    <span style="color: var(--apple-text);">實領薪資 <span style="font-size:12px; color:var(--apple-text-gray); font-weight:400;">(不含獎金)</span></span>
                     <span id="slip-total"></span>
                 </div>
             </div>
         </div>
         
-        <!-- 一鍵下載儲存為圖片按鈕 -->
-        <button class="btn-primary" style="background-color: #28a745; margin-top: 15px;" id="download-btn" onclick="downloadSlip()"><i class="fa-solid fa-download"></i> 下載薪資單明細</button>
+        <button class="btn-primary" style="margin-top: 20px;" id="download-btn" onclick="downloadSlip()">儲存薪資單圖片</button>
         
-        <!-- LINE 環境下生成的圖片長按區 -->
         <div id="img-preview-area">
-            <p style="font-size: 13px; color: #28a745; font-weight: bold; margin: 0 0 8px 0;"><i class="fa-solid fa-arrow-down"></i> 已為您生成圖片！請【長按下方圖片】即可直接儲存至手機相簿喔！</p>
+            <p style="font-size: 12px; color: var(--apple-text-gray); margin: 0 0 12px 0;">已為您產生明細照片。請長按下方圖片儲存至相簿。</p>
             <img id="generated-img" src="" alt="薪資單圖片">
         </div>
 
-        <button class="btn-secondary" style="margin-top: 15px;" onclick="logout()">安全登出</button>
+        <button class="btn-link" style="margin-top: 20px;" onclick="logout()">安全登出</button>
     </div>
 
 </div>
 
-<!-- LINE 智慧提示彈窗 -->
 <div class="line-modal" id="line-alert">
     <div class="line-modal-content">
-        <h3 style="color: #d9534f; margin-top: 0;"><i class="fa-solid fa-circle-exclamation"></i> LINE 限制提示</h3>
-        <p style="font-size: 14px; text-align: left; line-height: 1.5; opacity: 0.9;">
-            偵測到您目前使用 LINE 開啟網頁，LINE 系統不允許直接點擊下載檔案。<br><br>
-            <strong>💡 解決方法：</strong><br>
-            請點擊螢幕【右上角 <code>•••</code>】或右下角，選擇<strong>【使用預設瀏覽器開啟】</strong>（如 Safari 或 Chrome），就可以正常下載囉！
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: 600;">LINE 瀏覽器限制</h3>
+        <p style="font-size: 13px; text-align: left; line-height: 1.5; color: var(--apple-text-gray); margin-bottom: 20px;">
+            目前正使用 LINE 內建瀏覽器，該環境不支援直接下載檔案。<br><br>
+            請長按畫面下方新生成的<strong>【薪資單圖片】</strong>直接儲存；或點擊右上角 <code>•••</code> 選擇<strong>【使用預設瀏覽器開啟】</strong>即可正常下載。
         </p>
-        <button class="btn-primary" style="margin-top: 10px;" onclick="closeLineModal()">知道了</button>
+        <button class="btn-primary" style="padding: 10px;" onclick="closeLineModal()">好</button>
     </div>
 </div>
 
@@ -326,15 +372,15 @@
         const hour = new Date().getHours();
         let greeting = "";
         if (hour >= 5 && hour < 11) {
-            greeting = "☀️ 早安！今天也是充滿活力的一天，加油！";
+            greeting = "早安。今天也是充滿活力的一天。";
         } else if (hour >= 11 && hour < 14) {
-            greeting = "🍴 午安！忙碌的午餐餐期辛苦了，記得喝口水！";
+            greeting = "午安。忙碌的午餐餐期辛苦了。";
         } else if (hour >= 14 && hour < 17) {
-            greeting = "☕ 空班休息時間！吃個點心、充飽電再出發！";
+            greeting = "空班休息時間。充飽電再出發。";
         } else if (hour >= 17 && hour < 21) {
-            greeting = "🔥 晚餐尖峰時間！跟夥伴們一起衝一波！";
+            greeting = "晚餐尖峰時間。辛苦了。";
         } else {
-            greeting = "🌙 深夜下班辛苦了！回家路上注意安全，早點休息喔！";
+            greeting = "深夜下班辛苦了。回家路上請注意安全。";
         }
         document.getElementById('greeting-txt').innerText = greeting;
     }
@@ -342,31 +388,19 @@
     function initTheme() {
         const savedTheme = localStorage.getItem('userTheme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        const icon = document.getElementById('theme-icon');
-        if (savedTheme === 'dark') {
-            icon.className = "fa-solid fa-sun";
-        } else {
-            icon.className = "fa-solid fa-moon";
-        }
+        const btn = document.getElementById('theme-btn');
+        btn.innerText = savedTheme === 'dark' ? '淺色模式' : '深色模式';
     }
 
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = 'light';
-        const icon = document.getElementById('theme-icon');
-        
-        if (currentTheme === 'light') {
-            newTheme = 'dark';
-            icon.className = "fa-solid fa-sun";
-        } else {
-            icon.className = "fa-solid fa-moon";
-        }
+        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('userTheme', newTheme);
+        document.getElementById('theme-btn').innerText = newTheme === 'dark' ? '淺色模式' : '深色模式';
     }
 
-    // 判斷當前是否處於 LINE 內建瀏覽器環境
     function isLineBrowser() {
         const ua = navigator.userAgent.toLowerCase();
         return ua.indexOf('line') !== -1;
@@ -376,34 +410,28 @@
         document.getElementById('line-alert').style.display = 'none';
     }
 
-    // 優化後的下載與截圖生成邏輯
     function downloadSlip() {
         const target = document.getElementById('capture-area');
         const originalBg = target.style.background;
         
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        target.style.background = currentTheme === 'dark' ? '#1e1e1e' : '#ffffff';
-        target.style.color = currentTheme === 'dark' ? '#ffffff' : '#000000';
+        target.style.background = currentTheme === 'dark' ? '#1c1c1e' : '#ffffff';
 
         html2canvas(target, { scale: 2, useCORS: true }).then(canvas => {
             target.style.background = originalBg; 
             const imgDataURL = canvas.toDataURL('image/png');
 
-            // 只要一按下載，不論如何都先把實體圖片渲染出來（防線，讓員工隨時能長按儲存）
             const previewArea = document.getElementById('img-preview-area');
             const previewImg = document.getElementById('generated-img');
             previewImg.src = imgDataURL;
             previewArea.style.display = 'block';
 
-            // 如果是 LINE 環境，跳出導引至預設瀏覽器的提示彈窗
             if (isLineBrowser()) {
                 document.getElementById('line-alert').style.display = 'flex';
-                // 幫他們把網頁滾動到生成的圖片那邊，方便他們直接長按
                 previewArea.scrollIntoView({ behavior: 'smooth' });
             } else {
-                // 正常的外部瀏覽器（Safari/Chrome），直接觸發下載
                 const link = document.createElement('a');
-                link.download = `${document.getElementById('month-select').value}_鳳麟竹南店_${currentSelectedEmployee}_薪資明細.png`;
+                link.download = `${document.getElementById('month-select').value}_鳳麟_${currentSelectedEmployee}_薪資明細.png`;
                 link.href = imgDataURL;
                 link.click();
             }
@@ -450,7 +478,7 @@
             }
         })
         .catch(err => {
-            alert("正在為您安全連線至店內資料庫，請稍候...");
+            alert("系統安全連線中，請稍候...");
             window.location.href = API_URL + "?action=getInitData";
         });
     }
@@ -458,14 +486,14 @@
     function selectEmployee(name) {
         currentSelectedEmployee = name;
         const selectedMonth = document.getElementById('month-select').value;
-        document.getElementById('auth-title').innerText = `${selectedMonth} - ${name}`;
+        document.getElementById('auth-title').innerText = name;
         
         const pwdInput = document.getElementById('password');
         const rememberCheckbox = document.getElementById('remember-pwd');
         document.getElementById('error-txt').style.display = "none";
         
         pwdInput.type = "password";
-        document.getElementById('eye-icon').className = "fa-solid fa-eye toggle-password";
+        document.getElementById('eye-icon').innerText = "顯示";
         
         const savedPassword = localStorage.getItem('savedPwd_' + name);
         if (savedPassword) {
@@ -484,10 +512,10 @@
         const eyeIcon = document.getElementById('eye-icon');
         if (pwdInput.type === "password") {
             pwdInput.type = "text";
-            eyeIcon.className = "fa-solid fa-eye-slash toggle-password";
+            eyeIcon.innerText = "隱藏";
         } else {
             pwdInput.type = "password";
-            eyeIcon.className = "fa-solid fa-eye toggle-password";
+            eyeIcon.innerText = "顯示";
         }
     }
 
@@ -510,7 +538,7 @@
         fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
         .then(response => response.json())
         .then(data => {
-            btn.innerText = "確認送出";
+            btn.innerText = "驗證";
             btn.disabled = false;
 
             if (data.status === "success") {
@@ -521,29 +549,28 @@
                 }
 
                 const empData = data.data;
-                document.getElementById('slip-title').innerText = `${selectedMonth} 鳳麟竹南店 薪資明細`;
+                document.getElementById('slip-title').innerText = `${selectedMonth} 薪資明細`;
                 document.getElementById('slip-name').innerText = currentSelectedEmployee;
                 
-                document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage) + " 元 / 時";
+                document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage) + " 元";
                 document.getElementById('slip-hours').innerText = empData.hours + " 小時";
                 document.getElementById('slip-latemin').innerText = empData.lateMin + " 分鐘";
                 document.getElementById('slip-advance').innerText = "- " + formatNumber(empData.advance) + " 元";
                 document.getElementById('slip-loss').innerText = "- " + formatNumber(empData.loss) + " 元";
                 document.getElementById('slip-missing').innerText = empData.missing + " 次";
                 document.getElementById('slip-latecount').innerText = empData.lateCount + " 次";
-                document.getElementById('slip-total').innerText = `$ ${formatNumber(empData.totalSalary)} 元`;
+                document.getElementById('slip-total').innerText = `$ ${formatNumber(empData.totalSalary)}`;
                 
-                // 每次新登入時，先隱藏上次生成的舊圖片預覽
                 document.getElementById('img-preview-area').style.display = 'none';
 
                 switchPage('page-slip');
             } else {
-                document.getElementById('error-txt').innerText = data.message || "密碼錯誤！";
+                document.getElementById('error-txt').innerText = "密碼不正確。";
                 document.getElementById('error-txt').style.display = "block";
             }
         })
         .catch(err => {
-            btn.innerText = "確認送出";
+            btn.innerText = "驗證";
             btn.disabled = false;
             alert("網路錯誤或安全驗證未通過！");
         });
