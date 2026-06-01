@@ -149,6 +149,11 @@
         .deduct-style { color: var(--apple-danger); }
         .error-msg { color: var(--apple-danger); font-size: 14px; margin-top: 14px; text-align: center; display: none; }
         .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; }
+        
+        /* 圖片預覽區塊樣式 */
+        .img-preview-container { margin-top: 24px; display: none; text-align: center; animation: pageIn 0.4s var(--apple-ease) forwards; }
+        .preview-tip { font-size: 14px; color: var(--apple-blue); margin-bottom: 12px; font-weight: 500; }
+        .generated-salary-img { width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); border: 1px solid var(--apple-border); }
     </style>
 </head>
 <body>
@@ -196,7 +201,7 @@
         </div>
 
         <div id="page-slip" class="page">
-            <div id="capture-area" style="padding: 16px; border-radius: 16px;">
+            <div id="capture-area" style="padding: 16px; border-radius: 16px; background: var(--apple-bg); transition: background 0.5s var(--apple-ease);">
                 <h2 id="slip-title" style="font-size: 26px;">薪資明細表</h2>
                 <div class="salary-slip">
                     <div class="slip-row"><span>員工姓名</span><span id="slip-name"></span></div>
@@ -210,7 +215,13 @@
                     <div class="slip-total"><span>實領薪資</span><span id="slip-total"></span></div>
                 </div>
             </div>
-            <button class="btn-primary" style="margin-top: 28px;" onclick="downloadSlip()">儲存薪資單圖片</button>
+            
+            <div class="img-preview-container" id="preview-box">
+                <div class="preview-tip">✨ 圖片已產生！請長按下方圖片儲存</div>
+                <img id="generated-img" class="generated-salary-img" src="" alt="薪資單">
+            </div>
+
+            <button class="btn-primary" style="margin-top: 28px;" id="action-btn" onclick="downloadSlip()">產生薪資單圖片</button>
             <button class="btn-link" onclick="logout()">安全登出</button>
         </div>
     </div>
@@ -296,6 +307,12 @@
                 document.getElementById('slip-missing').innerText = d.missing + " 次";
                 document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
                 document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
+                
+                // 初始化重設圖片預覽狀態
+                document.getElementById('preview-box').style.display = 'none';
+                document.getElementById('capture-area').style.display = 'block';
+                document.getElementById('action-btn').innerText = "產生薪資單圖片";
+                
                 switchPage('page-slip');
             } else {
                 document.getElementById('error-txt').style.display = "block";
@@ -303,10 +320,41 @@
         });
     }
 
+    function downloadSlip() {
+        const captureArea = document.getElementById('capture-area');
+        const previewBox = document.getElementById('preview-box');
+        const generatedImg = document.getElementById('generated-img');
+        const actionBtn = document.getElementById('action-btn');
+
+        // 使用 html2canvas 將純文字區塊繪製成圖片 base64
+        html2canvas(captureArea, { 
+            scale: 2,
+            useCORS: true,
+            backgroundColor: null
+        }).then(canvas => {
+            generatedImg.src = canvas.toDataURL('image/png');
+            
+            // 隱藏原本的純文字明細，改顯示長按圖片區
+            captureArea.style.display = 'none';
+            previewBox.style.display = 'block';
+            
+            // 變更按鈕提示與行為
+            actionBtn.innerText = "重新檢視明細";
+            actionBtn.onclick = resetSlipView;
+        });
+    }
+
+    function resetSlipView() {
+        document.getElementById('capture-area').style.display = 'block';
+        document.getElementById('preview-box').style.display = 'none';
+        const actionBtn = document.getElementById('action-btn');
+        actionBtn.innerText = "產生薪資單圖片";
+        actionBtn.onclick = downloadSlip;
+    }
+
     function switchPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function goBack(id) { switchPage(id); }
     function logout() { switchPage('page-main'); }
-    function downloadSlip() { alert("截圖功能已就緒，請使用裝置截圖。"); }
 </script>
 </body>
 </html>
