@@ -21,10 +21,9 @@
             --apple-danger: #ff3b30;
             --input-bg: #f5f5f7;
             --input-border: rgba(0, 0, 0, 0.1);
-            --apple-ease: cubic-bezier(0.25, 1, 0.5, 1); /* Apple 經典絲滑阻尼曲線 */
+            --apple-ease: cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* 🌙 Apple 深色模式 (Midnight Black) */
         [data-theme="dark"] {
             --apple-bg: #000000;
             --apple-wrapper-bg: #161617;
@@ -53,7 +52,6 @@
             overflow-x: hidden;
         }
 
-        /* 頂部極簡導覽列 */
         .apple-nav {
             width: 100%;
             height: 48px;
@@ -85,13 +83,12 @@
         }
         .theme-toggle-btn:hover { color: var(--apple-blue); }
 
-        /* 打破卡片架構：升級為滿版大氣主容器 */
         .main-wrapper {
             flex: 1;
             width: 100%;
-            max-width: 1000px; /* 大寬幅大氣排版 */
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 100px 24px 60px 24px; /* 上方留出導覽列空間 */
+            padding: 100px 24px 60px 24px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -99,10 +96,9 @@
             justify-content: center;
         }
 
-        /* 內容核心呈現區 */
         .content-container {
             width: 100%;
-            max-width: 500px; /* 限制內容閱讀舒適寬度 */
+            max-width: 500px;
             text-align: center;
             animation: appleFadeIn 0.6s var(--apple-ease) forwards;
         }
@@ -112,12 +108,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Apple 經典大型標題 */
         h2 { 
             color: var(--apple-text); 
             margin-top: 0;
             margin-bottom: 12px; 
-            font-size: 34px; /* 放大標題，震懾力十足 */
+            font-size: 34px;
             font-weight: 700; 
             letter-spacing: -0.04em;
         }
@@ -128,186 +123,73 @@
         
         .input-group { margin-bottom: 32px; text-align: left; }
         label { display: block; margin-bottom: 12px; color: var(--apple-text-gray); font-size: 14px; font-weight: 500; letter-spacing: -0.01em; text-align: center; }
-        .page-auth .input-group label { text-align: left; } /* 密碼頁標籤靠左 */
+        .page-auth .input-group label { text-align: left; }
 
-        /* Apple 風格極簡下拉選單 */
-        .select-wrapper {
-            position: relative;
-            max-width: 280px;
-            margin: 0 auto;
-        }
+        .select-wrapper { position: relative; max-width: 280px; margin: 0 auto; }
         select { 
-            width: 100%; 
-            padding: 14px 20px; 
-            border: 1px solid var(--input-border); 
-            border-radius: 12px; 
-            box-sizing: border-box; 
-            font-size: 16px; 
-            background-color: var(--input-bg); 
-            color: var(--apple-text);
-            outline: none;
-            appearance: none;
-            -webkit-appearance: none;
-            text-align: center;
-            text-align-last: center;
-            font-weight: 500;
+            width: 100%; padding: 14px 20px; border: 1px solid var(--input-border); 
+            border-radius: 12px; box-sizing: border-box; font-size: 16px; 
+            background-color: var(--input-bg); color: var(--apple-text);
+            outline: none; appearance: none; -webkit-appearance: none;
+            text-align: center; text-align-last: center; font-weight: 500;
             transition: all 0.3s var(--apple-ease);
         }
         select:focus { border-color: var(--apple-blue); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
         
-        /* 密碼輸入欄細節調整 */
         .password-wrapper { position: relative; width: 100%; margin-top: 8px; }
         input[type="password"], input[type="text"] {
-            width: 100%;
-            padding: 16px 0;
-            border: none;
-            border-bottom: 1px solid var(--input-border);
-            background: transparent;
-            box-sizing: border-box;
-            font-size: 24px; 
-            letter-spacing: 4px;
-            color: var(--apple-text);
-            outline: none;
-            text-align: center;
-            transition: border-color 0.3s var(--apple-ease);
+            width: 100%; padding: 16px 0; border: none; border-bottom: 1px solid var(--input-border);
+            background: transparent; box-sizing: border-box; font-size: 24px; letter-spacing: 4px;
+            color: var(--apple-text); outline: none; text-align: center;
         }
         input:focus { border-bottom-color: var(--apple-blue); }
         
         .toggle-password-txt { 
-            position: absolute; 
-            right: 10px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            cursor: pointer; 
-            color: var(--apple-blue); 
-            font-size: 13px; 
-            font-weight: 400;
-            user-select: none;
-            letter-spacing: normal;
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+            cursor: pointer; color: var(--apple-blue); font-size: 13px; font-weight: 400; user-select: none;
         }
         
-        .remember-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; font-size: 14px; color: var(--apple-text-gray); cursor: pointer; user-select: none; }
+        .remember-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; font-size: 14px; color: var(--apple-text-gray); cursor: pointer; }
         .remember-wrapper input { width: 16px; height: 16px; border-radius: 4px; accent-color: var(--apple-blue); cursor: pointer; }
 
-        /* 員工列表：像 iOS 系統桌面大組件一樣優雅 */
         .employee-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 14px; 
-            max-height: 340px; 
-            overflow-y: auto; 
-            padding: 6px; 
-            margin: 20px auto 0 auto; 
-            max-width: 400px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; 
+            max-height: 340px; overflow-y: auto; padding: 6px; margin: 20px auto 0 auto; max-width: 400px;
         }
-        .employee-grid::-webkit-scrollbar { width: 4px; }
-        .employee-grid::-webkit-scrollbar-track { background: transparent; }
-        .employee-grid::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
-
-        /* 姓名膠囊按鈕 */
+        
         .emp-btn { 
-            background-color: var(--apple-wrapper-bg); 
-            border: 1px solid var(--apple-border); 
-            border-radius: 14px; 
-            padding: 18px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            text-align: center; 
-            font-weight: 500; 
-            color: var(--apple-text); 
+            background-color: var(--apple-wrapper-bg); border: 1px solid var(--apple-border); 
+            border-radius: 14px; padding: 18px; font-size: 16px; cursor: pointer; 
+            text-align: center; font-weight: 500; color: var(--apple-text); 
             box-shadow: 0 4px 12px rgba(0,0,0,0.01);
-            transition: background-color 0.25s var(--apple-ease), transform 0.15s var(--apple-ease), border-color 0.25s var(--apple-ease);
+            transition: background-color 0.25s var(--apple-ease), transform 0.15s var(--apple-ease);
         }
         .emp-btn:hover { background-color: var(--input-bg); border-color: var(--apple-blue); }
-        .emp-btn:active { transform: scale(0.95); opacity: 0.8; } 
+        .emp-btn:active { transform: scale(0.95); } 
         
-        /* Apple 原廠大氣藍色膠囊按鈕 */
         .btn-primary { 
-            width: 100%; 
-            max-width: 320px;
-            padding: 16px; 
-            background-color: var(--apple-blue); 
-            border: none; 
-            color: white; 
-            border-radius: 28px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            font-weight: 500; 
-            margin: 0 auto;
-            display: block;
-            transition: background-color 0.2s var(--apple-ease), transform 0.15s var(--apple-ease); 
+            width: 100%; max-width: 320px; padding: 16px; background-color: var(--apple-blue); 
+            border: none; color: white; border-radius: 28px; font-size: 16px; cursor: pointer; 
+            font-weight: 500; margin: 0 auto; display: block;
+            transition: background-color 0.2s var(--apple-ease); 
         }
         .btn-primary:hover { background-color: var(--apple-blue-hover); }
-        .btn-primary:active { transform: scale(0.97); } 
         
-        /* Apple 官網經典 Link Style */
         .btn-link {
-            display: block;
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--apple-blue);
-            font-size: 14px;
-            font-weight: 400;
-            cursor: pointer;
-            text-align: center;
-            margin-top: 24px;
-            transition: opacity 0.2s var(--apple-ease);
+            display: block; width: 100%; background: transparent; border: none; 
+            color: var(--apple-blue); font-size: 14px; cursor: pointer; text-align: center; margin-top: 24px;
         }
-        .btn-link:hover { text-decoration: underline; opacity: 0.8; }
         
-        /* 明細表外觀 - 滿版舒適兼顧精緻 */
-        .salary-slip { margin-top: 20px; background: var(--apple-wrapper-bg); border: 1px solid var(--apple-border); border-radius: 16px; padding: 10px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.01); }
+        .salary-slip { margin-top: 20px; background: var(--apple-wrapper-bg); border: 1px solid var(--apple-border); border-radius: 16px; padding: 10px 24px; }
         .slip-row { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 0.5px solid var(--apple-border); font-size: 16px; color: var(--apple-text); align-items: center; }
         .slip-label { color: var(--apple-text-gray); font-weight: 400; }
         .slip-value { font-weight: 500; }
         
-        /* 實領薪資 */
         .slip-total { display: flex; justify-content: space-between; padding: 26px 0 16px 0; font-weight: 700; font-size: 24px; color: var(--apple-text); border-top: 1px solid var(--apple-text); margin-top: 10px; align-items: center; }
         .deduct-style { color: var(--apple-danger); }
         
         .error-msg { color: var(--apple-danger); font-size: 14px; margin-top: 14px; text-align: center; display: none; font-weight: 500; }
-        .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; line-height: 1.5; font-weight: 400; }
-
-        /* LINE 彈窗改為 iOS 原生彈窗風格 */
-        .line-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .line-modal-content {
-            background: var(--apple-wrapper-bg);
-            border: 0.5px solid var(--apple-border);
-            padding: 32px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 320px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            animation: iosAlert 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes iosAlert { from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); } }
-
-        #img-preview-area {
-            margin-top: 30px;
-            display: none;
-            text-align: center;
-            border-top: 0.5px solid var(--apple-border);
-            padding-top: 24px;
-        }
-        #img-preview-area img {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
-        }
-
-        .loading-dots::after { content: ''; animation: dots 1.5s infinite steps(4); display: inline-block; width: 12px; }
-        @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+        .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; font-weight: 400; }
     </style>
 </head>
 <body>
@@ -322,9 +204,7 @@
 
         <div id="page-loading" class="page active">
             <h2>薪資查詢系統</h2>
-            <div style="font-size: 15px; color: var(--apple-text-gray); margin-top: 20px;">
-                <span class="loading-dots">安全連線中</span>
-            </div>
+            <div style="font-size: 15px; color: var(--apple-text-gray); margin-top: 20px;">安全連線中...</div>
         </div>
 
         <div id="page-main" class="page">
@@ -363,96 +243,38 @@
             <div id="capture-area" style="padding: 16px; border-radius: 16px;">
                 <h2 id="slip-title" style="margin-top: 10px; text-align: left; font-size: 26px;">薪資明細表</h2>
                 <div class="salary-slip">
-                    <div class="slip-row">
-                        <span class="slip-label">員工姓名</span>
-                        <span id="slip-name" class="slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">時薪</span>
-                        <span id="slip-wage" class="slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">本月時數</span>
-                        <span id="slip-hours" class="slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">遲到 (分鐘)</span>
-                        <span id="slip-latemin" class="slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">預支項目</span>
-                        <span id="slip-advance" class="deduct-style slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">營運損失</span>
-                        <span id="slip-loss" class="deduct-style slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">缺失次數</span>
-                        <span id="slip-missing" class="slip-value"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label">遲到次數</span>
-                        <span id="slip-latecount" class="slip-value"></span>
-                    </div>
+                    <div class="slip-row"><span class="slip-label">員工姓名</span><span id="slip-name" class="slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">時薪</span><span id="slip-wage" class="slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">本月時數</span><span id="slip-hours" class="slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">遲到 (分鐘)</span><span id="slip-latemin" class="slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">預支項目</span><span id="slip-advance" class="deduct-style slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">營運損失</span><span id="slip-loss" class="deduct-style slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">缺失次數</span><span id="slip-missing" class="slip-value"></span></div>
+                    <div class="slip-row"><span class="slip-label">遲到次數</span><span id="slip-latecount" class="slip-value"></span></div>
                     <div class="slip-total">
-                        <span style="color: var(--apple-text);">實領薪資 <span style="font-size:13px; color:var(--apple-text-gray); font-weight:400;">(不含獎金)</span></span>
+                        <span>實領薪資 <span style="font-size:13px; color:var(--apple-text-gray); font-weight:400;">(不含獎金)</span></span>
                         <span id="slip-total"></span>
                     </div>
                 </div>
             </div>
-            
             <button class="btn-primary" style="margin-top: 28px;" id="download-btn" onclick="downloadSlip()">儲存薪資單圖片</button>
-            
-            <div id="img-preview-area">
-                <p style="font-size: 13px; color: var(--apple-text-gray); margin: 0 0 16px 0;">已為您產生明細照片。請長按下方圖片儲存至相簿。</p>
-                <img id="generated-img" src="" alt="薪資單圖片">
-            </div>
-
+            <div id="img-preview-area" style="margin-top: 30px; display: none; text-align: center;"><img id="generated-img" src="" style="width: 100%; max-width: 400px; border-radius: 16px;"></div>
             <button class="btn-link" style="margin-top: 28px;" onclick="logout()">安全登出</button>
         </div>
-
-    </div>
-</div>
-
-<div class="line-modal" id="line-alert">
-    <div class="line-modal-content">
-        <h3 style="margin-top: 0; font-size: 18px; font-weight: 600;">LINE 瀏覽器限制</h3>
-        <p style="font-size: 13px; text-align: left; line-height: 1.6; color: var(--apple-text-gray); margin-bottom: 24px;">
-            目前正使用 LINE 內建瀏覽器，該環境不支援直接下載檔案。<br><br>
-            請長按畫面下方新生成的<strong>【薪資單圖片】</strong>直接儲存；或點擊右上角 <code>•••</code> 選擇<strong>【使用預設瀏覽器開啟】</strong>即可正常下載。
-        </p>
-        <button class="btn-primary" style="padding: 12px;" onclick="closeLineModal()">好</button>
     </div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwnlxGByCNwcbJaLOP4kJB6UDHTZHRf3on24LAA60zKFtEQKCnfvOYHN6KdowKyTdnJ/exec"; 
 
-    let currentSelectedEmployee = "";
-    let allMonths = [];
-    let allEmployees = [];
-
-    window.onload = function() { 
-        initTheme();     
-        updateGreeting(); 
-        initSystem(); 
-    };
+    window.onload = function() { initTheme(); updateGreeting(); initSystem(); };
 
     function updateGreeting() {
         const hour = new Date().getHours();
         let greeting = "";
-        if (hour >= 5 && hour < 11) {
-            greeting = "早安。今天也是充滿活力的一天。";
-        } else if (hour >= 11 && hour < 14) {
-            greeting = "午安。忙碌的午餐餐期辛苦了。";
-        } else if (hour >= 14 && hour < 17) {
-            greeting = "空班休息時間。充飽電再出發。";
-        } else if (hour >= 17 && hour < 21) {
-            greeting = "晚餐尖峰時間。辛苦了。";
-        } else {
-            greeting = "深夜下班辛苦了。回家路上請注意安全。";
-        }
+        if (hour >= 5 && hour < 12) greeting = "早安。";
+        else if (hour >= 12 && hour < 18) greeting = "午安。";
+        else greeting = "晚安。";
         document.getElementById('greeting-txt').innerText = greeting;
     }
 
@@ -465,217 +287,106 @@
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         let newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('userTheme', newTheme);
         document.getElementById('theme-btn').innerText = newTheme === 'dark' ? '淺色模式' : '深色模式';
     }
 
-    function isLineBrowser() {
-        const ua = navigator.userAgent.toLowerCase();
-        return ua.indexOf('line') !== -1;
-    }
-
-    function closeLineModal() {
-        document.getElementById('line-alert').style.display = 'none';
-    }
-
-    function downloadSlip() {
-        const target = document.getElementById('capture-area');
-        const originalBg = target.style.background;
-        
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        target.style.background = currentTheme === 'dark' ? '#1c1c1e' : '#ffffff';
-
-        html2canvas(target, { scale: 2, useCORS: true }).then(canvas => {
-            target.style.background = originalBg; 
-            const imgDataURL = canvas.toDataURL('image/png');
-
-            const previewArea = document.getElementById('img-preview-area');
-            const previewImg = document.getElementById('generated-img');
-            previewImg.src = imgDataURL;
-            previewArea.style.display = 'block';
-
-            if (isLineBrowser()) {
-                document.getElementById('line-alert').style.display = 'flex';
-                previewArea.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                const link = document.createElement('a');
-                link.download = `${document.getElementById('month-select').value}_鳳麟_${currentSelectedEmployee}_薪資明細.png`;
-                link.href = imgDataURL;
-                link.click();
-            }
-        });
-    }
-
     function initSystem() {
         switchPage('page-loading');
         fetch(`${API_URL}?action=getInitData`)
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if(data.status === "success") {
-                allMonths = data.months;
-                allEmployees = data.names;
-                
-                const monthSelect = document.getElementById('month-select');
-                monthSelect.innerHTML = "";
-                
-                const currentMonthStr = (new Date().getMonth() + 1) + "月"; 
-
-                allMonths.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m; 
-                    opt.innerText = m;
-                    if (m === currentMonthStr) {
-                        opt.selected = true;
-                    }
-                    monthSelect.appendChild(opt);
-                });
-
-                const employeeBox = document.getElementById('employee-box');
-                employeeBox.innerHTML = "";
-                allEmployees.forEach(name => {
-                    const btn = document.createElement('button');
-                    btn.className = 'emp-btn';
-                    btn.innerText = name;
-                    btn.onclick = () => selectEmployee(name);
-                    employeeBox.appendChild(btn);
-                });
-                
-                switchPage('page-main');
-            } else {
-                alert("載入失敗：" + data.message);
-            }
-        })
-        .catch(err => {
-            alert("系統安全連線中，請稍候...");
-            window.location.href = API_URL + "?action=getInitData";
+            const monthSelect = document.getElementById('month-select');
+            const currentMonthStr = (new Date().getMonth() + 1) + "月"; 
+            data.months.forEach(m => {
+                let opt = document.createElement('option');
+                opt.value = m; opt.innerText = m;
+                if (m === currentMonthStr) opt.selected = true;
+                monthSelect.appendChild(opt);
+            });
+            const employeeBox = document.getElementById('employee-box');
+            data.names.forEach(name => {
+                let btn = document.createElement('button');
+                btn.className = 'emp-btn';
+                btn.innerText = name;
+                btn.onclick = () => selectEmployee(name);
+                employeeBox.appendChild(btn);
+            });
+            switchPage('page-main');
         });
     }
 
     function selectEmployee(name) {
-        currentSelectedEmployee = name;
-        const selectedMonth = document.getElementById('month-select').value;
+        window.currentSelectedEmployee = name;
         document.getElementById('auth-title').innerText = name;
-        
-        const pwdInput = document.getElementById('password');
-        const rememberCheckbox = document.getElementById('remember-pwd');
-        document.getElementById('error-txt').style.display = "none";
-        
-        pwdInput.type = "password";
-        document.getElementById('eye-icon').innerText = "顯示";
-        
-        const savedPassword = localStorage.getItem('savedPwd_' + name);
-        if (savedPassword) {
-            pwdInput.value = savedPassword; 
-            rememberCheckbox.checked = true; 
-        } else {
-            pwdInput.value = "";
-            rememberCheckbox.checked = false;
-        }
-        
+        document.getElementById('password').value = localStorage.getItem('savedPwd_' + name) || "";
         switchPage('page-auth');
     }
 
     function togglePasswordVisibility() {
-        const pwdInput = document.getElementById('password');
-        const eyeIcon = document.getElementById('eye-icon');
-        if (pwdInput.type === "password") {
-            pwdInput.type = "text";
-            eyeIcon.innerText = "隱藏";
-        } else {
-            pwdInput.type = "password";
-            eyeIcon.innerText = "顯示";
-        }
+        const pwd = document.getElementById('password');
+        const eye = document.getElementById('eye-icon');
+        pwd.type = pwd.type === "password" ? "text" : "password";
+        eye.innerText = pwd.type === "password" ? "顯示" : "隱藏";
     }
 
-    // 當密碼輸入錯誤時，觸發滿版機身左右晃動警告（iOS 經典動效）
     function shakeCard() {
         const wrapper = document.getElementById('main-card');
         wrapper.style.transition = 'none';
-        
         let startTime = Date.now();
-        let duration = 400; 
-        
         function animate() {
             let elapsed = Date.now() - startTime;
-            if (elapsed < duration) {
-                let x = Math.sin((elapsed / duration) * Math.PI * 5) * 8 * (1 - elapsed / duration);
+            if (elapsed < 400) {
+                let x = Math.sin((elapsed / 400) * Math.PI * 5) * 8 * (1 - elapsed / 400);
                 wrapper.style.transform = `translateX(${x}px)`;
                 requestAnimationFrame(animate);
-            } else {
-                wrapper.style.transform = '';
-                wrapper.style.transition = '';
-            }
+            } else { wrapper.style.transform = ''; }
         }
         animate();
     }
 
-    function formatNumber(val) {
-        if (isNaN(val) || val === "") return val;
-        return Number(val).toLocaleString();
-    }
-
     function verifyPassword() {
         const inputPwd = document.getElementById('password').value;
-        if(!inputPwd) return;
-
         const selectedMonth = document.getElementById('month-select').value;
-        const btn = document.getElementById('submit-pwd-btn');
-        const rememberCheckbox = document.getElementById('remember-pwd');
-        
-        btn.innerText = "驗證中...";
-        btn.disabled = true;
-
-        fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
-        .then(response => response.json())
+        fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(window.currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
+        .then(r => r.json())
         .then(data => {
-            btn.innerText = "驗證";
-            btn.disabled = false;
-
             if (data.status === "success") {
-                if (rememberCheckbox.checked) {
-                    localStorage.setItem('savedPwd_' + currentSelectedEmployee, inputPwd);
-                } else {
-                    localStorage.removeItem('savedPwd_' + currentSelectedEmployee);
-                }
-
-                const empData = data.data;
+                if (document.getElementById('remember-pwd').checked) localStorage.setItem('savedPwd_' + window.currentSelectedEmployee, inputPwd);
+                else localStorage.removeItem('savedPwd_' + window.currentSelectedEmployee);
+                
+                const d = data.data;
                 document.getElementById('slip-title').innerText = `${selectedMonth} 薪資明細`;
-                document.getElementById('slip-name').innerText = currentSelectedEmployee;
-                
-                document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage) + " 元";
-                document.getElementById('slip-hours').innerText = empData.hours + " 小時";
-                document.getElementById('slip-latemin').innerText = empData.lateMin + " 分鐘";
-                document.getElementById('slip-advance').innerText = "- " + formatNumber(empData.advance) + " 元";
-                document.getElementById('slip-loss').innerText = "- " + formatNumber(empData.loss) + " 元";
-                document.getElementById('slip-missing').innerText = empData.missing + " 次";
-                document.getElementById('slip-latecount').innerText = empData.lateCount + " 次";
-                document.getElementById('slip-total').innerText = `$ ${formatNumber(empData.totalSalary)}`;
-                
-                document.getElementById('img-preview-area').style.display = 'none';
-
+                document.getElementById('slip-name').innerText = window.currentSelectedEmployee;
+                document.getElementById('slip-wage').innerText = Number(d.hourlyWage).toLocaleString() + " 元";
+                document.getElementById('slip-hours').innerText = d.hours + " 小時";
+                document.getElementById('slip-latemin').innerText = d.lateMin + " 分鐘";
+                document.getElementById('slip-advance').innerText = "- " + Number(d.advance).toLocaleString() + " 元";
+                document.getElementById('slip-loss').innerText = "- " + Number(d.loss).toLocaleString() + " 元";
+                document.getElementById('slip-missing').innerText = d.missing + " 次";
+                document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
+                document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
                 switchPage('page-slip');
             } else {
-                document.getElementById('error-txt').innerText = "密碼不正確。";
                 document.getElementById('error-txt').style.display = "block";
-                shakeCard(); 
+                shakeCard();
             }
-        })
-        .catch(err => {
-            btn.innerText = "驗證";
-            btn.disabled = false;
-            alert("網路錯誤或安全驗證未通過！");
         });
     }
 
-    function switchPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
+    function downloadSlip() {
+        html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
+            const img = document.getElementById('generated-img');
+            img.src = canvas.toDataURL('image/png');
+            document.getElementById('img-preview-area').style.display = 'block';
+            img.scrollIntoView({ behavior: 'smooth' });
+        });
     }
-    function goBack(pageId) { switchPage(pageId); }
-    function logout() { currentSelectedEmployee = ""; switchPage('page-main'); }
-</script>
 
+    function switchPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function goBack(id) { switchPage(id); }
+    function logout() { switchPage('page-main'); }
+</script>
 </body>
 </html>
