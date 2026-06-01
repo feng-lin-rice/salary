@@ -4,42 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鳳麟 員工薪資查詢系統</title>
+    <!-- 引入必要的 html2canvas 庫 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* ==================================================== */
-        /* Apple 官網極簡風格規範                               */
+        /* Apple 官網級頂級細節規範                             */
         /* ==================================================== */
         :root {
             --apple-bg: #f5f5f7;
-            --apple-card: rgba(255, 255, 255, 0.85);
-            --apple-border: rgba(0, 0, 0, 0.08);
+            --apple-card: rgba(255, 255, 255, 0.8);
+            --apple-border: rgba(0, 0, 0, 0.06);
             --apple-text: #1d1d1f;
             --apple-text-gray: #86868b;
             --apple-blue: #0071e3;
             --apple-blue-hover: #0077ed;
             --apple-danger: #ff3b30;
-            --input-bg: rgba(0, 0, 0, 0.02);
-            --input-border: rgba(0, 0, 0, 0.15);
+            --input-bg: rgba(0, 0, 0, 0.03);
+            --input-border: rgba(0, 0, 0, 0.12);
+            --apple-ease: cubic-bezier(0.25, 1, 0.5, 1); /* Apple 經典絲滑阻尼曲線 */
         }
 
         /* 🌙 Apple 深色模式 (Midnight Black) */
         [data-theme="dark"] {
             --apple-bg: #000000;
-            --apple-card: rgba(28, 28, 30, 0.85);
-            --apple-border: rgba(255, 255, 255, 0.1);
+            --apple-card: rgba(28, 28, 30, 0.8);
+            --apple-border: rgba(255, 255, 255, 0.08);
             --apple-text: #f5f5f7;
             --apple-text-gray: #86868b;
             --apple-blue: #2997ff;
             --apple-blue-hover: #43a4ff;
             --apple-danger: #ff453a;
-            --input-bg: rgba(255, 255, 255, 0.05);
-            --input-border: rgba(255, 255, 255, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --input-border: rgba(255, 255, 255, 0.15);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: var(--apple-bg);
-            background-image: none; /* 移除複雜背景圖，改為 Apple 標誌性純色底 */
             margin: 0;
             padding: 20px;
             display: flex;
@@ -47,93 +48,99 @@
             align-items: center;
             min-height: 100vh;
             color: var(--apple-text);
-            transition: background-color 0.4s ease, color 0.4s ease;
+            transition: background-color 0.5s var(--apple-ease), color 0.5s var(--apple-ease);
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* Apple 核心卡片 - 清爽夾層結構 */
+        /* Apple 核心卡片 - 呼吸留白加大、絲滑淡入 */
         .container { 
             position: relative;
             background: var(--apple-card); 
-            backdrop-filter: blur(30px) saturate(180%); 
-            -webkit-backdrop-filter: blur(30px) saturate(180%); 
-            border-radius: 18px; 
+            backdrop-filter: blur(35px) saturate(200%); 
+            -webkit-backdrop-filter: blur(35px) saturate(200%); 
+            border-radius: 20px; 
             border: 0.5px solid var(--apple-border); 
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
-            padding: 40px 32px; 
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.03);
+            padding: 48px 36px; /* 擴大內襯，營造 Apple 標誌性大氣留白 */
             width: 100%; 
             max-width: 420px;
             box-sizing: border-box; 
-            transition: all 0.4s ease;
+            animation: appleFadeIn 0.6s var(--apple-ease) forwards;
         }
 
-        /* 右上角極簡黑白模式切換鈕 */
+        @keyframes appleFadeIn {
+            from { opacity: 0; transform: scale(0.97) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* 右上角極簡模式切換標籤 */
         .theme-toggle-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 22px;
+            right: 24px;
             background: transparent;
             border: none;
             color: var(--apple-text-gray);
             font-size: 13px;
-            letter-spacing: -0.01em;
             cursor: pointer;
             font-weight: 400;
+            transition: color 0.3s var(--apple-ease);
         }
         .theme-toggle-btn:hover { color: var(--apple-blue); }
 
-        /* Apple 經典粗體字標題 */
+        /* Apple 經典粗體字 */
         h2 { 
             text-align: center; 
             color: var(--apple-text); 
             margin-top: 0;
-            margin-bottom: 24px; 
+            margin-bottom: 28px; 
             font-size: 26px;
             font-weight: 700; 
             letter-spacing: -0.03em;
         }
         
-        .page { display: none; }
-        .page.active { display: block; }
+        .page { display: none; opacity: 0; }
+        .page.active { display: block; animation: pageIn 0.4s var(--apple-ease) forwards; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         
-        .input-group { margin-bottom: 28px; text-align: left; }
-        label { display: block; margin-bottom: 10px; color: var(--apple-text-gray); font-size: 13px; font-weight: 500; }
+        .input-group { margin-bottom: 32px; text-align: left; }
+        label { display: block; margin-bottom: 12px; color: var(--apple-text-gray); font-size: 13px; font-weight: 500; letter-spacing: -0.01em; }
         
-        /* Apple 風格極簡下拉選單 */
+        /* 下拉選單結構優化 */
         select { 
             width: 100%; 
-            padding: 12px 16px; 
+            padding: 14px 16px; 
             border: 1px solid var(--input-border); 
-            border-radius: 10px; 
+            border-radius: 12px; 
             box-sizing: border-box; 
             font-size: 16px; 
             background-color: var(--input-bg); 
             color: var(--apple-text);
-            font-weight: 400;
             outline: none;
             appearance: none;
             -webkit-appearance: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s var(--apple-ease);
         }
-        select:focus { border-color: var(--apple-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+        select:focus { border-color: var(--apple-blue); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); background-color: transparent; }
         
-        /* 密碼輸入欄改為極簡優雅風格 */
+        /* 密碼輸入欄細節調整 */
         .password-wrapper { position: relative; width: 100%; }
         input[type="password"], input[type="text"] {
             width: 100%;
-            padding: 14px 0;
+            padding: 16px 0;
             border: none;
             border-bottom: 1px solid var(--input-border);
             background: transparent;
             box-sizing: border-box;
-            font-size: 18px;
+            font-size: 22px; /* 更優雅的數字大小 */
+            letter-spacing: 2px;
             color: var(--apple-text);
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s var(--apple-ease);
         }
         input:focus { border-bottom-color: var(--apple-blue); }
         
-        /* 小眼睛改為純文字超連結樣式 */
         .toggle-password-txt { 
             position: absolute; 
             right: 0; 
@@ -143,33 +150,63 @@
             color: var(--apple-blue); 
             font-size: 13px; 
             font-weight: 400;
+            user-select: none;
         }
         
-        .remember-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--apple-text-gray); cursor: pointer; user-select: none; }
-        .remember-wrapper input { width: 15px; height: 15px; border-radius: 4px; accent-color: var(--apple-blue); }
+        .remember-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--apple-text-gray); cursor: pointer; user-select: none; }
+        .remember-wrapper input { width: 16px; height: 16px; border-radius: 4px; accent-color: var(--apple-blue); cursor: pointer; }
 
-        /* 姓名列表改為乾淨的膠囊按鈕 */
-        .employee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-height: 260px; overflow-y: auto; padding: 4px; margin-top: 10px; }
-        .emp-btn { background-color: var(--input-bg); border: 1px solid transparent; border-radius: 10px; padding: 14px; font-size: 15px; cursor: pointer; text-align: center; transition: all 0.2s ease; font-weight: 500; color: var(--apple-text); }
-        .emp-btn:hover { background-color: rgba(128,128,128,0.1); }
+        /* ==================================================== */
+        /* 🌟 究極優化：消滅難看滾動條，改用 iOS 幽靈滑桿      */
+        /* ==================================================== */
+        .employee-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            max-height: 270px; 
+            overflow-y: auto; 
+            padding: 4px; 
+            margin-top: 10px; 
+        }
+        .employee-grid::-webkit-scrollbar { width: 5px; }
+        .employee-grid::-webkit-scrollbar-track { background: transparent; }
+        .employee-grid::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+        .employee-grid::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+
+        /* 姓名膠囊按鈕與 iOS 按壓回饋 */
+        .emp-btn { 
+            background-color: var(--input-bg); 
+            border: 1px solid transparent; 
+            border-radius: 12px; 
+            padding: 16px; 
+            font-size: 15px; 
+            cursor: pointer; 
+            text-align: center; 
+            font-weight: 500; 
+            color: var(--apple-text); 
+            transition: background-color 0.25s var(--apple-ease), transform 0.15s var(--apple-ease);
+        }
+        .emp-btn:hover { background-color: rgba(128,128,128,0.08); }
+        .emp-btn:active { transform: scale(0.96); opacity: 0.8; } /* iOS 微觸覺縮放回饋 */
         
-        /* Apple 標誌性寶藍色膠囊按鈕 */
+        /* Apple 標準原廠寶藍色膠囊按鈕 */
         .btn-primary { 
             width: 100%; 
-            padding: 14px; 
+            padding: 16px; 
             background-color: var(--apple-blue); 
             border: none; 
             color: white; 
-            border-radius: 22px; /* 經典膠囊弧度 */
+            border-radius: 26px; /* 原廠膠囊比例 */
             font-size: 16px; 
             cursor: pointer; 
             font-weight: 500; 
             letter-spacing: -0.01em;
-            transition: background-color 0.2s ease; 
+            transition: background-color 0.2s var(--apple-ease), transform 0.15s var(--apple-ease); 
         }
         .btn-primary:hover { background-color: var(--apple-blue-hover); }
+        .btn-primary:active { transform: scale(0.97); } /* 按壓反饋 */
         
-        /* Apple 官網經典文字超連結按鈕 (Link Style) */
+        /* Apple 官網經典 Link Style */
         .btn-link {
             display: block;
             width: 100%;
@@ -180,30 +217,30 @@
             font-weight: 400;
             cursor: pointer;
             text-align: center;
-            margin-top: 18px;
-            transition: opacity 0.2s;
+            margin-top: 22px;
+            transition: opacity 0.2s var(--apple-ease);
         }
         .btn-link:hover { text-decoration: underline; opacity: 0.8; }
         
-        /* 明細表外觀 - 移除彩色小圖示，純文字靠左靠右 */
+        /* 明細表外觀 - 完全捨棄雜訊 */
         .salary-slip { margin-top: 10px; }
-        .slip-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 0.5px solid var(--apple-border); font-size: 15px; color: var(--apple-text); align-items: center; }
+        .slip-row { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 0.5px solid var(--apple-border); font-size: 15px; color: var(--apple-text); align-items: center; }
         .slip-label { color: var(--apple-text-gray); font-weight: 400; }
         .slip-value { font-weight: 500; }
         
-        /* 實領薪資 - 大膽粗體字突顯 */
-        .slip-total { display: flex; justify-content: space-between; padding: 20px 0; font-weight: 700; font-size: 20px; color: var(--apple-text); border-top: 1px solid var(--apple-text); margin-top: 16px; align-items: center; }
+        /* 實領薪資大標題 */
+        .slip-total { display: flex; justify-content: space-between; padding: 24px 0 10px 0; font-weight: 700; font-size: 22px; color: var(--apple-text); border-top: 1px solid var(--apple-text); margin-top: 20px; align-items: center; }
         .deduct-style { color: var(--apple-danger); }
         
-        .error-msg { color: var(--apple-danger); font-size: 13px; margin-top: 10px; text-align: center; display: none; font-weight: 500; }
-        .welcome-msg { text-align: center; font-size: 13px; color: var(--apple-text-gray); margin-top: -14px; margin-bottom: 24px; line-height: 1.4; }
+        .error-msg { color: var(--apple-danger); font-size: 13px; margin-top: 12px; text-align: center; display: none; font-weight: 500; }
+        .welcome-msg { text-align: center; font-size: 13px; color: var(--apple-text-gray); margin-top: -18px; margin-bottom: 28px; line-height: 1.5; font-weight: 400; }
 
-        /* LINE 彈窗改為蘋果通知中心風格 */
+        /* LINE 彈窗改為 iOS 通知中心風格 */
         .line-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.3);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -211,52 +248,45 @@
         }
         .line-modal-content {
             background: var(--apple-card);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
             border: 0.5px solid var(--apple-border);
-            padding: 24px;
-            border-radius: 14px;
+            padding: 28px;
+            border-radius: 16px;
             text-align: center;
             max-width: 300px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            animation: iosAlert 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        @keyframes iosAlert { from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); } }
 
         #img-preview-area {
-            margin-top: 20px;
+            margin-top: 24px;
             display: none;
             text-align: center;
             border-top: 0.5px solid var(--apple-border);
-            padding-top: 16px;
+            padding-top: 20px;
         }
         #img-preview-area img {
             width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
         }
 
-        .loading-dots::after {
-            content: '';
-            animation: dots 1.5s infinite steps(4);
-            display: inline-block;
-            width: 12px;
-        }
-        @keyframes dots {
-            0% { content: ''; }
-            25% { content: '.'; }
-            50% { content: '..'; }
-            75% { content: '...'; }
-        }
+        .loading-dots::after { content: ''; animation: dots 1.5s infinite steps(4); display: inline-block; width: 12px; }
+        @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
     </style>
 </head>
 <body>
 
 <div class="container" id="main-card">
     
+    <!-- Apple 極簡切換模式標籤 -->
     <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn">深色模式</button>
 
     <div id="page-loading" class="page active">
         <h2>鳳麟 薪資查詢</h2>
-        <div style="text-align:center; padding:20px; font-size: 14px; color: var(--apple-text-gray);">
+        <div style="text-align:center; padding:10px; font-size: 14px; color: var(--apple-text-gray);">
             <span class="loading-dots">安全連線中</span>
         </div>
     </div>
@@ -265,7 +295,7 @@
         <h2>薪資查詢系統</h2>
         <div class="welcome-msg" id="greeting-txt"></div>
         <div class="input-group">
-            <label for="month-select">選擇查詢月份</label>
+            <label>選擇查詢月份</label>
             <select id="month-select"></select>
         </div>
         <label>選擇您的姓名</label>
@@ -275,7 +305,7 @@
     <div id="page-auth" class="page">
         <h2 id="auth-title">身分驗證</h2>
         <div class="input-group" style="margin-top: 10px;">
-            <label for="password">請輸入身分證後 4 碼</label>
+            <label>請輸入身分證後 4 碼</label>
             <div class="password-wrapper">
                 <input type="password" id="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 <span class="toggle-password-txt" id="eye-icon" onclick="togglePasswordVisibility()">顯示</span>
@@ -290,7 +320,7 @@
     </div>
 
     <div id="page-slip" class="page">
-        <div id="capture-area" style="padding: 10px; border-radius: 12px;">
+        <div id="capture-area" style="padding: 12px; border-radius: 14px;">
             <h2 id="slip-title" style="margin-top: 10px; text-align: left; font-size: 24px;">薪資明細表</h2>
             <div class="salary-slip">
                 <div class="slip-row">
@@ -332,18 +362,19 @@
             </div>
         </div>
         
-        <button class="btn-primary" style="margin-top: 20px;" id="download-btn" onclick="downloadSlip()">儲存薪資單圖片</button>
+        <button class="btn-primary" style="margin-top: 24px;" id="download-btn" onclick="downloadSlip()">儲存薪資單圖片</button>
         
         <div id="img-preview-area">
             <p style="font-size: 12px; color: var(--apple-text-gray); margin: 0 0 12px 0;">已為您產生明細照片。請長按下方圖片儲存至相簿。</p>
             <img id="generated-img" src="" alt="薪資單圖片">
         </div>
 
-        <button class="btn-link" style="margin-top: 20px;" onclick="logout()">安全登出</button>
+        <button class="btn-link" style="margin-top: 24px;" onclick="logout()">安全登出</button>
     </div>
 
 </div>
 
+<!-- LINE 提示彈窗 -->
 <div class="line-modal" id="line-alert">
     <div class="line-modal-content">
         <h3 style="margin-top: 0; font-size: 18px; font-weight: 600;">LINE 瀏覽器限制</h3>
@@ -351,7 +382,7 @@
             目前正使用 LINE 內建瀏覽器，該環境不支援直接下載檔案。<br><br>
             請長按畫面下方新生成的<strong>【薪資單圖片】</strong>直接儲存；或點擊右上角 <code>•••</code> 選擇<strong>【使用預設瀏覽器開啟】</strong>即可正常下載。
         </p>
-        <button class="btn-primary" style="padding: 10px;" onclick="closeLineModal()">好</button>
+        <button class="btn-primary" style="padding: 12px;" onclick="closeLineModal()">好</button>
     </div>
 </div>
 
@@ -388,8 +419,7 @@
     function initTheme() {
         const savedTheme = localStorage.getItem('userTheme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        const btn = document.getElementById('theme-btn');
-        btn.innerText = savedTheme === 'dark' ? '淺色模式' : '深色模式';
+        document.getElementById('theme-btn').innerText = savedTheme === 'dark' ? '淺色模式' : '深色模式';
     }
 
     function toggleTheme() {
@@ -519,6 +549,29 @@
         }
     }
 
+    // 當密碼輸入錯誤時，加入 Apple iOS 的經典「左右搖晃」警告動畫
+    function shakeCard() {
+        const card = document.getElementById('main-card');
+        card.style.transition = 'none';
+        
+        let startTime = Date.now();
+        let duration = 400; // 0.4 秒
+        
+        function animate() {
+            let elapsed = Date.now() - startTime;
+            if (elapsed < duration) {
+                // 利用正弦波做出左右擺動
+                let x = Math.sin((elapsed / duration) * Math.PI * 5) * 8 * (1 - elapsed / duration);
+                card.style.transform = `translateX(${x}px)`;
+                requestAnimationFrame(animate);
+            } else {
+                card.style.transform = '';
+                card.style.transition = '';
+            }
+        }
+        animate();
+    }
+
     function formatNumber(val) {
         if (isNaN(val) || val === "") return val;
         return Number(val).toLocaleString();
@@ -567,6 +620,7 @@
             } else {
                 document.getElementById('error-txt').innerText = "密碼不正確。";
                 document.getElementById('error-txt').style.display = "block";
+                shakeCard(); // 觸發蘋果機身搖晃效果
             }
         })
         .catch(err => {
