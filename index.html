@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鳳麟 員工薪資查詢系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ==================================================== */
         /* 網頁外觀樣式調整區（長網址我都幫你收納到這裡了）    */
@@ -25,10 +26,15 @@
         h2 { text-align: center; color: #333; margin-bottom: 20px; }
         .page { display: none; }
         .page.active { display: block; }
-        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group { margin-bottom: 20px; text-align: left; position: relative; }
         label { display: block; margin-bottom: 8px; color: #666; font-weight: bold; }
         select, input[type="text"], input[type="password"] { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #f8f9fa; }
         select:focus, input:focus { border-color: #007bff; outline: none; background-color: #fff; }
+        
+        /* ✨ 密碼眼睛的特製樣式位置 */
+        .password-wrapper { position: relative; width: 100%; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; font-size: 18px; z-index: 10; }
+        
         .employee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-height: 260px; overflow-y: auto; padding: 5px; margin-top: 10px; }
         .emp-btn { background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 15px; font-size: 16px; cursor: pointer; text-align: center; transition: all 0.2s; font-weight: bold; color: #495057; }
         .emp-btn:hover { border-color: #007bff; background-color: #e7f1ff; color: #007bff; }
@@ -40,7 +46,10 @@
         .slip-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: bold; font-size: 1.25em; color: #d9534f; border-top: 2px solid #333; margin-top: 10px; }
         .error-msg { color: #d9534f; font-size: 14px; margin-top: 8px; text-align: center; display: none; }
 
-        /* ✨ 這裡幫你加上點點點會跳動的動畫特效 */
+        /* ✨ 扣項專用的橘紅色字體 */
+        .deduct-style { color: #e0523d; font-weight: bold; }
+
+        /* ✨ 點點點會跳動的動畫特效 */
         .loading-dots::after {
             content: '';
             animation: dots 1.5s infinite steps(4);
@@ -82,7 +91,10 @@
         <h2 id="auth-title">身分驗證</h2>
         <div class="input-group">
             <label for="password"><i class="fas fa-lock"></i> 密碼 <span style="color: #ff4d4d;">（身分證後4碼）</span></label>
-            <input type="password" id="password" placeholder="請輸入您的密碼">
+            <div class="password-wrapper">
+                <input type="password" id="password" placeholder="請輸入您的密碼">
+                <i class="fa-solid fa-eye toggle-password" id="eye-icon" onclick="togglePasswordVisibility()"></i>
+            </div>
             <div class="error-msg" id="error-txt">密碼錯誤！</div>
         </div>
         <button class="btn-primary" id="submit-pwd-btn" onclick="verifyPassword()">確認送出</button>
@@ -96,8 +108,8 @@
             <div class="slip-row"><span>時薪：</span><span id="slip-wage"></span></div>
             <div class="slip-row"><span>時數：</span><span id="slip-hours"></span></div>
             <div class="slip-row"><span>遲到(分)：</span><span id="slip-latemin"></span></div>
-            <div class="slip-row"><span>預支：</span><span id="slip-advance"></span></div>
-            <div class="slip-row"><span>營損：</span><span id="slip-loss"></span></div>
+            <div class="slip-row"><span>預支：</span><span id="slip-advance" class="deduct-style"></span></div>
+            <div class="slip-row"><span>營損：</span><span id="slip-loss" class="deduct-style"></span></div>
             <div class="slip-row"><span>缺失：</span><span id="slip-missing"></span></div>
             <div class="slip-row"><span>遲到次數：</span><span id="slip-latecount"></span></div>
             <div class="slip-total"><span>薪資(未包含獎金)：</span><span id="slip-total"></span></div>
@@ -108,7 +120,6 @@
 </div>
 
 <script>
-    // 雲端資料庫 GAS 連結網址
     const API_URL = "https://script.google.com/macros/s/AKfycbwnlxGByCNwcbJaLOP4kJB6UDHTZHRf3on24LAA60zKFtEQKCnfvOYHN6KdowKyTdnJ/exec"; 
 
     let currentSelectedEmployee = "";
@@ -129,15 +140,12 @@
                 const monthSelect = document.getElementById('month-select');
                 monthSelect.innerHTML = "";
                 
-                // ✨ 這裡幫你寫好了：自動取得目前手機能顯示的當前月份（例如："6月"）
                 const currentMonthStr = (new Date().getMonth() + 1) + "月"; 
 
                 allMonths.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = m; 
                     opt.innerText = m;
-                    
-                    // 如果雲端拉下來的月份剛好符合現在的月份，就自動選中它
                     if (m === currentMonthStr) {
                         opt.selected = true;
                     }
@@ -168,9 +176,28 @@
         currentSelectedEmployee = name;
         const selectedMonth = document.getElementById('month-select').value;
         document.getElementById('auth-title').innerText = `${selectedMonth} - ${name}`;
-        document.getElementById('password').value = "";
+        
+        // 重設密碼框與眼睛狀態
+        const pwdInput = document.getElementById('password');
+        pwdInput.value = "";
+        pwdInput.type = "password";
+        document.getElementById('eye-icon').className = "fa-solid fa-eye toggle-password";
+        
         document.getElementById('error-txt').style.display = "none";
         switchPage('page-auth');
+    }
+
+    /* ✨ 升級功能：控制密碼看得見/看不見的切換邏輯 */
+    function togglePasswordVisibility() {
+        const pwdInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        if (pwdInput.type === "password") {
+            pwdInput.type = "text";
+            eyeIcon.className = "fa-solid fa-eye-slash toggle-password"; // 變成斜線眼睛
+        } else {
+            pwdInput.type = "password";
+            eyeIcon.className = "fa-solid fa-eye toggle-password"; // 變回正常眼睛
+        }
     }
 
     function formatNumber(val) {
@@ -196,18 +223,18 @@
             if (data.status === "success") {
                 const empData = data.data;
                 
-                // ✨ 這裡已經完美改成你指定的黑色粗體店名標題
                 document.getElementById('slip-title').innerText = `${selectedMonth} 鳳麟竹南店 薪資明細`;
-                
                 document.getElementById('slip-name').innerText = currentSelectedEmployee;
-                document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage);
-                document.getElementById('slip-hours').innerText = empData.hours;
-                document.getElementById('slip-latemin').innerText = empData.lateMin;
-                document.getElementById('slip-advance').innerText = formatNumber(empData.advance);
-                document.getElementById('slip-loss').innerText = formatNumber(empData.loss);
-                document.getElementById('slip-missing').innerText = empData.missing;
-                document.getElementById('slip-latecount').innerText = empData.lateCount;
-                document.getElementById('slip-total').innerText = `$ ${formatNumber(empData.totalSalary)}`;
+                
+                // ✨ 升級功能：讓所有薪資項目顯示更完整的「元」與單位，且扣項有橘紅字提醒
+                document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage) + " 元 / 時";
+                document.getElementById('slip-hours').innerText = empData.hours + " 小時";
+                document.getElementById('slip-latemin').innerText = empData.lateMin + " 分鐘";
+                document.getElementById('slip-advance').innerText = "- " + formatNumber(empData.advance) + " 元";
+                document.getElementById('slip-loss').innerText = "- " + formatNumber(empData.loss) + " 元";
+                document.getElementById('slip-missing').innerText = empData.missing + " 次";
+                document.getElementById('slip-latecount').innerText = empData.lateCount + " 次";
+                document.getElementById('slip-total').innerText = `$ ${formatNumber(empData.totalSalary)} 元`;
                 
                 switchPage('page-slip');
             } else {
