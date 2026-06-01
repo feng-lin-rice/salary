@@ -7,10 +7,10 @@
     <style>
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-           background-image: url('https://private-user-images.githubusercontent.com/289449801/600623498-4cf124e7-77ff-46e5-bd48-4ae86b56dcec.JPG?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODAyNDY2OTcsImnbiI6MTc4MDI0NjM5NywicGF0aCI6Ii8yODk0NDk4MDEvNjAwNjIzNDk4LTRjZjEyNGU3LTc3ZmYtNDZlNS1iZDQ4LTRhZTg2YjU2ZGNlYy5KUEc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNTMxJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDUzMVQxNjUzMTdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1jNWIyYmIxNzZkYzVkM2YwN2Q0Nzk5NTMzODI3MmEwZDE4MjdmZGNlYTE0ODRjMTA3MDkzYWFlODRlYTk2NGFiJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZqcGVnIn0.oJpqaQF01wcu8EgI2fBTS1FK9oCEKFA34anKt9thj1c');
-background-size: cover;
-background-position: center;
-background-attachment: fixed;
+            background-image: url('https://private-user-images.githubusercontent.com/289449801/600623498-4cf124e7-77ff-46e5-bd48-4ae86b56dcec.JPG?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3.SampleURL_Cleaned');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -167,7 +167,6 @@ background-attachment: fixed;
         <h2 id="auth-title">身分驗證</h2>
         <div class="input-group">
             <label for="password"><i class="fas fa-lock"></i> 密碼 <span style="color: #ff4d4d;">（身分證後4碼）</span></label>
-
             <input type="password" id="password" placeholder="請輸入您的密碼">
             <div class="error-msg" id="error-txt">密碼錯誤！</div>
         </div>
@@ -194,7 +193,6 @@ background-attachment: fixed;
 </div>
 
 <script>
-    // 🚀 已直接幫你填入你專屬的 GAS 網址，並處理好 CORS 連線限制
     const API_URL = "https://script.google.com/macros/s/AKfycbwnlxGByCNwcbJaLOP4kJB6UDHTZHRf3on24LAA60zKFtEQKCnfvOYHN6KdowKyTdnJ/exec"; 
 
     let currentSelectedEmployee = "";
@@ -208,7 +206,6 @@ background-attachment: fixed;
     function initSystem() {
         switchPage('page-loading');
         
-        // 使用 no-cors 或正常的 fetch 自動排查，因網址已綁定，我們直接進行標準傳輸
         fetch(`${API_URL}?action=getInitData`)
         .then(response => response.json())
         .then(data => {
@@ -239,7 +236,6 @@ background-attachment: fixed;
             }
         })
         .catch(err => {
-            // 自動引導員工安全打開
             alert("正在為您安全連線至店內資料庫，請稍候...");
             window.location.href = API_URL + "?action=getInitData";
         });
