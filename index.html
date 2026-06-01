@@ -39,6 +39,21 @@
         .slip-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 15px; }
         .slip-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: bold; font-size: 1.25em; color: #d9534f; border-top: 2px solid #333; margin-top: 10px; }
         .error-msg { color: #d9534f; font-size: 14px; margin-top: 8px; text-align: center; display: none; }
+
+        /* ✨ 這裡幫你加上點點點會跳動的動畫特效 */
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s infinite steps(4);
+            display: inline-block;
+            width: 12px;
+            text-align: left;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+        }
     </style>
 </head>
 <body>
@@ -48,7 +63,7 @@
     <div id="page-loading" class="page active">
         <h2>系統連線中</h2>
         <div style="text-align:center; color:#666; padding:20px;">
-            正在讀取雲端資料庫，請稍後...<br>
+            <span class="loading-dots" style="font-weight: bold; color: #007bff;">系統加載中</span><br>
             <span style="font-size: 0.85em; color: #999;"><br>( 第一次開啟需載入約 5-10 秒，請耐心稍候喔！ )</span>
         </div>
     </div>
@@ -75,8 +90,7 @@
     </div>
 
     <div id="page-slip" class="page">
-        <h2 id="slip-title">鳳麟竹南店
-            薪資明細表</h2>
+        <h2 id="slip-title">薪資明細表</h2>
         <div class="salary-slip">
             <div class="slip-row"><strong>員工姓名：</strong><span id="slip-name"></span></div>
             <div class="slip-row"><span>時薪：</span><span id="slip-wage"></span></div>
@@ -171,9 +185,11 @@
 
             if (data.status === "success") {
                 const empData = data.data;
-                document.getElementById('slip-title').innerText = `${selectedMonth}鳳麟竹南店 薪資明細`;
-                document.getElementById('slip-name').innerText = currentSelectedEmployee;
                 
+                // ✨ 這裡已經完美改成你指定的黑色粗體店名標題
+                document.getElementById('slip-title').innerText = `${selectedMonth} 鳳麟竹南店 薪資明細`;
+                
+                document.getElementById('slip-name').innerText = currentSelectedEmployee;
                 document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage);
                 document.getElementById('slip-hours').innerText = empData.hours;
                 document.getElementById('slip-latemin').innerText = empData.lateMin;
