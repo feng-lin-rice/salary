@@ -146,6 +146,7 @@
         .salary-slip { margin-top: 20px; background: var(--apple-wrapper-bg); border: 1px solid var(--apple-border); border-radius: 16px; padding: 10px 24px; }
         .slip-row { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 0.5px solid var(--apple-border); font-size: 16px; color: var(--apple-text); }
         .slip-total { display: flex; justify-content: space-between; padding: 26px 0 16px 0; font-weight: 700; font-size: 24px; color: var(--apple-text); border-top: 1px solid var(--apple-text); margin-top: 10px; }
+        .deduct-style { color: var(--apple-danger); }
         .error-msg { color: var(--apple-danger); font-size: 14px; margin-top: 14px; text-align: center; display: none; }
         .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; }
     </style>
@@ -202,7 +203,10 @@
                     <div class="slip-row"><span>時薪</span><span id="slip-wage"></span></div>
                     <div class="slip-row"><span>本月時數</span><span id="slip-hours"></span></div>
                     <div class="slip-row"><span>遲到 (分)</span><span id="slip-latemin"></span></div>
-                    <div class="slip-row"><span>預支 / 損失</span><span id="slip-deduct" style="color:var(--apple-danger)"></span></div>
+                    <div class="slip-row"><span>預支</span><span id="slip-advance" class="deduct-style"></span></div>
+                    <div class="slip-row"><span>營損</span><span id="slip-loss" class="deduct-style"></span></div>
+                    <div class="slip-row"><span>缺失次數</span><span id="slip-missing"></span></div>
+                    <div class="slip-row"><span>遲到次數</span><span id="slip-latecount"></span></div>
                     <div class="slip-total"><span>實領薪資</span><span id="slip-total"></span></div>
                 </div>
             </div>
@@ -286,8 +290,11 @@
                 document.getElementById('slip-name').innerText = window.currentSelectedEmployee;
                 document.getElementById('slip-wage').innerText = Number(d.hourlyWage).toLocaleString() + " 元";
                 document.getElementById('slip-hours').innerText = d.hours + " 小時";
-                document.getElementById('slip-latemin').innerText = d.lateMin + " 分";
-                document.getElementById('slip-deduct').innerText = "- " + (Number(d.advance) + Number(d.loss)).toLocaleString() + " 元";
+                document.getElementById('slip-latemin').innerText = d.lateMin + " 分鐘";
+                document.getElementById('slip-advance').innerText = "- " + Number(d.advance).toLocaleString() + " 元";
+                document.getElementById('slip-loss').innerText = "- " + Number(d.loss).toLocaleString() + " 元";
+                document.getElementById('slip-missing').innerText = d.missing + " 次";
+                document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
                 document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
                 switchPage('page-slip');
             } else {
