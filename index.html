@@ -128,9 +128,19 @@
                 
                 const monthSelect = document.getElementById('month-select');
                 monthSelect.innerHTML = "";
+                
+                // ✨ 這裡幫你寫好了：自動取得目前手機能顯示的當前月份（例如："6月"）
+                const currentMonthStr = (new Date().getMonth() + 1) + "月"; 
+
                 allMonths.forEach(m => {
                     const opt = document.createElement('option');
-                    opt.value = m; opt.innerText = m;
+                    opt.value = m; 
+                    opt.innerText = m;
+                    
+                    // 如果雲端拉下來的月份剛好符合現在的月份，就自動選中它
+                    if (m === currentMonthStr) {
+                        opt.selected = true;
+                    }
                     monthSelect.appendChild(opt);
                 });
 
