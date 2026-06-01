@@ -140,8 +140,10 @@
         .emp-btn { background-color: var(--apple-wrapper-bg); border: 1px solid var(--apple-border); border-radius: 14px; padding: 18px; font-size: 16px; cursor: pointer; color: var(--apple-text); transition: all 0.25s var(--apple-ease); }
         .emp-btn:hover { background-color: var(--input-bg); border-color: var(--apple-blue); }
         
-        .btn-primary { width: 100%; max-width: 320px; padding: 16px; background-color: var(--apple-blue); border: none; color: white; border-radius: 28px; font-size: 16px; cursor: pointer; margin: 0 auto; display: block; }
+        .btn-primary { width: 100%; max-width: 320px; padding: 16px; background-color: var(--apple-blue); border: none; color: white; border-radius: 28px; font-size: 16px; cursor: pointer; margin: 0 auto; display: block; transition: all 0.3s var(--apple-ease); }
+        .btn-primary:disabled { background-color: var(--apple-text-gray); opacity: 0.6; cursor: not-allowed; }
         .btn-link { display: block; width: 100%; background: transparent; border: none; color: var(--apple-blue); font-size: 14px; cursor: pointer; margin-top: 24px; }
+        .btn-link:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .salary-slip { margin-top: 20px; background: var(--apple-wrapper-bg); border: 1px solid var(--apple-border); border-radius: 16px; padding: 10px 24px; }
         .slip-row { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 0.5px solid var(--apple-border); font-size: 16px; color: var(--apple-text); }
@@ -150,7 +152,7 @@
         .error-msg { color: var(--apple-danger); font-size: 14px; margin-top: 14px; text-align: center; display: none; }
         .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; }
         
-        /* 圖片預覽區塊樣式（原封不動呈呈現呈現呈現在正下方） */
+        /* 圖片預覽區塊樣式 */
         .img-preview-container { margin-top: 32px; display: none; text-align: center; animation: pageIn 0.4s var(--apple-ease) forwards; border-top: 1px dashed var(--apple-border); padding-top: 24px; }
         .preview-tip { font-size: 14px; color: var(--apple-blue); margin-bottom: 12px; font-weight: 500; }
         .generated-salary-img { width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); border: 1px solid var(--apple-border); }
@@ -196,8 +198,8 @@
                 <label class="remember-wrapper"><input type="checkbox" id="remember-pwd"> 記住密碼</label>
                 <div class="error-msg" id="error-txt">密碼不正確。</div>
             </div>
-            <button class="btn-primary" onmousedown="verifyPassword()" ontouchstart="verifyPassword(); event.preventDefault();">驗證</button>
-            <button class="btn-link" onclick="goBack('page-main')">返回主畫面</button>
+            <button class="btn-primary" id="verify-btn" onmousedown="verifyPassword()" ontouchstart="verifyPassword(); event.preventDefault();">驗證</button>
+            <button class="btn-link" id="back-btn" onclick="goBack('page-main')">返回主畫面</button>
         </div>
 
         <div id="page-slip" class="page">
@@ -278,8 +280,14 @@
         window.currentSelectedEmployee = name;
         document.getElementById('auth-title').innerText = name;
         document.getElementById('password').value = localStorage.getItem('savedPwd_' + name) || "";
-        // 切換頁面時順便把錯誤訊息藏起來
         document.getElementById('error-txt').style.display = "none";
+        
+        // 確保按鈕狀態是初始的
+        const verifyBtn = document.getElementById('verify-btn');
+        verifyBtn.innerText = "驗證";
+        verifyBtn.disabled = false;
+        document.getElementById('back-btn').disabled = false;
+
         switchPage('page-auth');
     }
 
@@ -292,11 +300,20 @@
 
     function verifyPassword() {
         const inputPwd = document.getElementById('password').value;
-        if (!inputPwd) return; // 沒輸入密碼不反應
+        if (!inputPwd) return; 
         
+        const verifyBtn = document.getElementById('verify-btn');
+        const backBtn = document.getElementById('back-btn');
+        
+        // 檢查如果已經在載入中，就不重複執行
+        if (verifyBtn.disabled) return;
+
+        // 觸發載入中狀態
+        verifyBtn.innerText = "載入中，請稍後...";
+        verifyBtn.disabled = true;
+        backBtn.disabled = true; // 載入時也禁用返回鍵
+
         const selectedMonth = document.getElementById('month-select').value;
-        
-        // 隱藏之前的錯誤訊息
         document.getElementById('error-txt').style.display = "none";
 
         fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(window.currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
@@ -323,6 +340,16 @@
             } else {
                 document.getElementById('error-txt').style.display = "block";
             }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("連線發生錯誤，請稍後再試。");
+        })
+        .finally(() => {
+            // 無論成功或失敗，都把按鈕狀態還原
+            verifyBtn.innerText = "驗證";
+            verifyBtn.disabled = false;
+            backBtn.disabled = false;
         });
     }
 
