@@ -32,7 +32,6 @@
             --apple-border: rgba(255, 255, 255, 0.15);
         }
 
-        /* 關鍵修改：讓 body 變成滿版容器，支援內部物件絕對垂直水平置中 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: var(--apple-bg);
@@ -42,11 +41,11 @@
             flex-direction: column;
             width: 100vw;
             height: 100vh;
-            height: -webkit-fill-available; /* 修正手機瀏覽器工具列高度問題 */
+            height: -webkit-fill-available;
             color: var(--apple-text);
             transition: background-color 0.6s var(--apple-ease), color 0.6s var(--apple-ease);
             -webkit-font-smoothing: antialiased;
-            overflow: hidden; /* 防止主畫面無故滾動 */
+            overflow: hidden;
         }
 
         /* 導航欄毛玻璃 */
@@ -82,18 +81,18 @@
         }
         .theme-toggle-btn:hover { color: var(--apple-blue); }
 
-        /* 關鍵修改：主容器上下左右絕對置中 */
+        /* 完美修正：大螢幕防重疊排列，小螢幕自適應 */
         .main-wrapper {
             flex: 1;
             width: 100%;
             max-width: 440px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 80px 24px 24px 24px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 垂直置中 */
-            align-items: center;     /* 水平置中 */
+            justify-content: flex-start;
+            align-items: center;     
         }
 
         .content-container {
@@ -105,7 +104,6 @@
             border: none;
         }
 
-        /* 頁面切換內容的滾動設定（針對項目較多的薪資單） */
         .page { 
             display: none; 
             opacity: 0; 
@@ -115,11 +113,10 @@
             padding: 4px;
             box-sizing: border-box;
         }
-        .page::-webkit-scrollbar { display: none; } /* 隱藏滾動條，保持極簡 */
+        .page::-webkit-scrollbar { display: none; }
         .page.active { display: block; animation: pageIn 0.6s var(--apple-ease) forwards; }
         @keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 初始加載圈圈 */
         .apple-spinner {
             width: 36px;
             height: 36px;
@@ -131,7 +128,15 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        h2 { color: var(--apple-text); margin-top: 0; margin-bottom: 8px; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; }
+        h2 { 
+            color: var(--apple-text); 
+            margin-top: 0; 
+            margin-bottom: 24px; 
+            font-size: 28px; 
+            font-weight: 600; 
+            letter-spacing: -0.03em; 
+            text-align: center;
+        }
         
         .input-group { margin-bottom: 28px; text-align: left; }
         label { display: block; margin-bottom: 10px; color: var(--apple-text-gray); font-size: 13px; font-weight: 500; letter-spacing: -0.01em; text-align: center; }
@@ -156,7 +161,6 @@
         .btn-primary:hover { background-color: var(--apple-blue-hover); }
         .btn-primary:disabled { background-color: var(--apple-text-gray); opacity: 0.4; cursor: not-allowed; }
         
-        /* 關鍵修改：按鈕文字內「...」動態跳動特效 */
         .dot-ani {
             display: inline-block;
             animation: dotWave 1.4s infinite both;
@@ -187,7 +191,6 @@
         .preview-tip { font-size: 13px; color: var(--apple-blue); margin-bottom: 12px; font-weight: 500; }
         .generated-salary-img { width: 100%; max-width: 400px; border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,0.06); border: 1px solid var(--apple-border); }
 
-        /* 錯誤訊息原地震動 */
         .error-msg { 
             color: var(--apple-danger); 
             font-size: 13px; 
@@ -218,7 +221,7 @@
     <div class="content-container">
 
         <div id="page-loading" class="page active">
-            <h2 style="text-align: center;">薪資查詢系統</h2>
+            <h2>薪資查詢系統</h2>
             <div style="margin-top: 40px; text-align: center;">
                 <div class="apple-spinner"></div>
                 <div style="font-size: 14px; color: var(--apple-text-gray); margin-top: 24px; letter-spacing: -0.01em;">連線中，請稍候</div>
@@ -226,7 +229,7 @@
         </div>
 
         <div id="page-main" class="page">
-            <h2 style="text-align: center;">薪資查詢系統</h2>
+            <h2>薪資查詢系統</h2>
             <div class="welcome-msg" id="greeting-txt"></div>
             <div class="input-group">
                 <label>選擇查詢月份</label>
@@ -237,7 +240,7 @@
         </div>
 
         <div id="page-auth" class="page">
-            <h2 id="auth-title" style="text-align: center;">身分驗證</h2>
+            <h2 id="auth-title">身分驗證</h2>
             <div class="input-group">
                 <label>請輸入身分證後 4 碼</label>
                 <div class="password-wrapper">
@@ -360,7 +363,6 @@
         
         if (verifyBtn.disabled) return;
 
-        // 關鍵修改：將「...」包成獨立的 span 標籤跑動畫
         verifyBtn.innerHTML = '載入中<span class="dot-ani">.</span><span class="dot-ani">.</span><span class="dot-ani">.</span>';
         verifyBtn.disabled = true;
         backBtn.disabled = true;
