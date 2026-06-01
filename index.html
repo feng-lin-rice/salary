@@ -171,7 +171,7 @@
 
             if (data.status === "success") {
                 const empData = data.data;
-                document.getElementById('slip-title').innerText = `${selectedMonth} 薪資明細`;
+                document.getElementById('slip-title').innerText = `${selectedMonth}鳳麟竹南店 薪資明細`;
                 document.getElementById('slip-name').innerText = currentSelectedEmployee;
                 
                 document.getElementById('slip-wage').innerText = formatNumber(empData.hourlyWage);
