@@ -150,8 +150,8 @@
         .error-msg { color: var(--apple-danger); font-size: 14px; margin-top: 14px; text-align: center; display: none; }
         .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; }
         
-        /* 圖片預覽區塊樣式 */
-        .img-preview-container { margin-top: 24px; display: none; text-align: center; animation: pageIn 0.4s var(--apple-ease) forwards; }
+        /* 圖片預覽區塊樣式（原封不動呈現在正下方） */
+        .img-preview-container { margin-top: 32px; display: none; text-align: center; animation: pageIn 0.4s var(--apple-ease) forwards; border-top: 1px dashed var(--apple-border); padding-top: 24px; }
         .preview-tip { font-size: 14px; color: var(--apple-blue); margin-bottom: 12px; font-weight: 500; }
         .generated-salary-img { width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); border: 1px solid var(--apple-border); }
     </style>
@@ -217,8 +217,8 @@
             </div>
             
             <div class="img-preview-container" id="preview-box">
-                <div class="preview-tip">✨ 圖片已產生！請長按下方圖片儲存</div>
-                <img id="generated-img" class="generated-salary-img" src="" alt="薪資單">
+                <div class="preview-tip">✨ 圖片已在下方產生！請長按圖片儲存</div>
+                <img id="generated-img" class="generated-salary-img" src="" alt="薪資單圖片">
             </div>
 
             <button class="btn-primary" style="margin-top: 28px;" id="action-btn" onclick="downloadSlip()">產生薪資單圖片</button>
@@ -308,10 +308,9 @@
                 document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
                 document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
                 
-                // 初始化重設圖片預覽狀態
+                // 每次重新驗證時，重設下方的圖片狀態為隱藏
                 document.getElementById('preview-box').style.display = 'none';
-                document.getElementById('capture-area').style.display = 'block';
-                document.getElementById('action-btn').innerText = "產生薪資單圖片";
+                document.getElementById('action-btn').style.display = 'block'; 
                 
                 switchPage('page-slip');
             } else {
@@ -326,30 +325,23 @@
         const generatedImg = document.getElementById('generated-img');
         const actionBtn = document.getElementById('action-btn');
 
-        // 使用 html2canvas 將純文字區塊繪製成圖片 base64
+        // 將明細表渲染成 base64 圖片
         html2canvas(captureArea, { 
             scale: 2,
             useCORS: true,
-            backgroundColor: null
+            backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#000000' : '#f5f5f7'
         }).then(canvas => {
             generatedImg.src = canvas.toDataURL('image/png');
             
-            // 隱藏原本的純文字明細，改顯示長按圖片區
-            captureArea.style.display = 'none';
+            // 關鍵修改：原本的表格 captureArea 保持 block（不隱藏），直接秀出下方的圖片區塊
             previewBox.style.display = 'block';
             
-            // 變更按鈕提示與行為
-            actionBtn.innerText = "重新檢視明細";
-            actionBtn.onclick = resetSlipView;
+            // 產生完圖片後，把產生按鈕隱藏（或者您可以保留，這邊選擇隱藏讓版面更乾淨）
+            actionBtn.style.display = 'none';
+            
+            // 自動將畫面平滑滾動到剛產生的圖片位置，方便員工長按
+            previewBox.scrollIntoView({ behavior: 'smooth' });
         });
-    }
-
-    function resetSlipView() {
-        document.getElementById('capture-area').style.display = 'block';
-        document.getElementById('preview-box').style.display = 'none';
-        const actionBtn = document.getElementById('action-btn');
-        actionBtn.innerText = "產生薪資單圖片";
-        actionBtn.onclick = downloadSlip;
     }
 
     function switchPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
