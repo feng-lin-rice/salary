@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鳳麟 員工薪資查詢系統</title>
+    <!-- 引入 Icon 庫與截圖必備的 html2canvas 庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -24,7 +25,7 @@
             --slip-border: rgba(0,0,0,0.15);
         }
 
-        /* 🌙 升級功能 2：深色模式的顏色變數設定 */
+        /* 🌙 深色模式的顏色變數設定 */
         [data-theme="dark"] {
             --bg-glass: rgba(20, 20, 20, 0.75);
             --border-glass: rgba(255, 255, 255, 0.15);
@@ -54,41 +55,7 @@
             transition: background 0.3s;
         }
 
-        /* ✨ 升級功能 3：微流光線條邊框的外層包裹格 */
-        .glow-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 450px;
-            padding: 3px; /* 留給流光線條的寬度 */
-            border-radius: 19px;
-            overflow: hidden;
-            background: transparent;
-        }
-
-        /* ✨ 升級功能 3：利用偽元素做出旋轉霓虹極光特效 */
-        .glow-wrapper::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                transparent, 
-                rgba(0, 123, 255, 0.6), 
-                rgba(0, 229, 255, 0.6), 
-                transparent 60%
-            );
-            animation: rotateGlow 6s linear infinite;
-            z-index: 1;
-        }
-
-        @keyframes rotateGlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* 強效毛玻璃主卡片 */
+        /* 拿掉五顏六色流光包裝，回歸乾淨極簡的卡片樣式 */
         .container { 
             position: relative;
             background: var(--bg-glass); 
@@ -99,8 +66,8 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             padding: 30px; 
             width: 100%; 
+            max-width: 450px;
             box-sizing: border-box; 
-            z-index: 2; /* 壓在流光線條上方 */
             transition: all 0.3s;
         }
 
@@ -169,8 +136,49 @@
         .error-msg { color: #d9534f; font-size: 14px; margin-top: 8px; text-align: center; display: none; font-weight: bold; }
         .deduct-style { color: #d94126; font-weight: bold; }
 
-        /* ✨ 升級功能 19：智慧問候語特製樣式 */
+        /* 智慧問候語特製樣式 */
         .welcome-msg { text-align: center; font-size: 14px; color: #007bff; font-weight: bold; margin-top: -10px; margin-bottom: 15px; }
+
+        /* LINE 下載優化的彈出提示窗樣式 */
+        .line-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .line-modal-content {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            color: var(--text-color);
+            max-width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        /* 生成的實體圖片預覽區（方便長按儲存） */
+        #img-preview-area {
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+            border: 2px dashed #28a745;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(40, 167, 69, 0.05);
+        }
+        #img-preview-area img {
+            width: 100%;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
 
         .loading-dots::after {
             content: '';
@@ -189,94 +197,115 @@
 </head>
 <body>
 
-<div class="glow-wrapper">
-    <div class="container" id="main-card">
+<div class="container" id="main-card">
+    
+    <!-- 切換太陽與月亮按鈕 -->
+    <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
+
+    <div id="page-loading" class="page active">
+        <h2>系統連線中</h2>
+        <div style="text-align:center; color: var(--text-color); padding:20px;">
+            <span class="loading-dots" style="font-weight: bold; color: #007bff;">系統加載中</span><br>
+            <span style="font-size: 0.85em; opacity: 0.8;"><br>( 第一次開啟需載入約 5-10 秒，請耐心稍候喔！ )</span>
+        </div>
+    </div>
+
+    <div id="page-main" class="page">
+        <h2>鳳麟 竹南店 薪資查詢系統</h2>
+        <div class="welcome-msg" id="greeting-txt"></div>
+        <div class="input-group">
+            <label for="month-select">1. 選擇查詢月份</label>
+            <select id="month-select"></select>
+        </div>
+        <label>2. 點擊您的姓名</label>
+        <div class="employee-grid" id="employee-box"></div>
+    </div>
+
+    <div id="page-auth" class="page">
+        <h2 id="auth-title">身分驗證</h2>
+        <div class="input-group">
+            <label for="password"><i class="fas fa-lock"></i> 密碼 <span style="color: #d94126;">（身分證後4碼）</span></label>
+            <div class="password-wrapper">
+                <input type="password" id="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="請輸入4位數字密碼" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <i class="fa-solid fa-eye toggle-password" id="eye-icon" onclick="togglePasswordVisibility()"></i>
+            </div>
+            <label class="remember-wrapper">
+                <input type="checkbox" id="remember-pwd"> 記住我的密碼
+            </label>
+            <div class="error-msg" id="error-txt">密碼錯誤！</div>
+        </div>
+        <button class="btn-primary" id="submit-pwd-btn" onclick="verifyPassword()">確認送出</button>
+        <button class="btn-secondary" onclick="goBack('page-main')">返回主畫面</button>
+    </div>
+
+    <div id="page-slip" class="page">
+        <!-- 給截圖功能指定的區塊 -->
+        <div id="capture-area" style="padding: 10px; border-radius: 8px;">
+            <h2 id="slip-title" style="margin-top: 10px;">薪資明細表</h2>
+            <div class="salary-slip">
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-user"></i><strong>員工姓名：</strong></span>
+                    <span id="slip-name" style="font-weight: bold;"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-coins"></i><span>時薪：</span></span>
+                    <span id="slip-wage"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-clock"></i><span>時數：</span></span>
+                    <span id="slip-hours"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-business-time"></i><span>遲到(分)：</span></span>
+                    <span id="slip-latemin"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-minus-circle"></i><span>預支：</span></span>
+                    <span id="slip-advance" class="deduct-style"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-minus-circle"></i><span>營損：</span></span>
+                    <span id="slip-loss" class="deduct-style"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-triangle-exclamation"></i><span>缺失：</span></span>
+                    <span id="slip-missing"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="slip-label"><i class="fa-solid fa-circle-exclamation"></i><span>遲到次數：</span></span>
+                    <span id="slip-latecount"></span>
+                </div>
+                <div class="slip-total">
+                    <span class="slip-label" style="color: #333;"><i class="fa-solid fa-wallet" style="color: #d9534f;"></i><span>實領薪資(不含獎金)：</span></span>
+                    <span id="slip-total"></span>
+                </div>
+            </div>
+        </div>
         
-        <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
-
-        <div id="page-loading" class="page active">
-            <h2>系統連線中</h2>
-            <div style="text-align:center; color: var(--text-color); padding:20px;">
-                <span class="loading-dots" style="font-weight: bold; color: #007bff;">系統加載中</span><br>
-                <span style="font-size: 0.85em; opacity: 0.8;"><br>( 第一次開啟需載入約 5-10 秒，請耐心稍候喔！ )</span>
-            </div>
+        <!-- 一鍵下載儲存為圖片按鈕 -->
+        <button class="btn-primary" style="background-color: #28a745; margin-top: 15px;" id="download-btn" onclick="downloadSlip()"><i class="fa-solid fa-download"></i> 下載薪資單明細</button>
+        
+        <!-- LINE 環境下生成的圖片長按區 -->
+        <div id="img-preview-area">
+            <p style="font-size: 13px; color: #28a745; font-weight: bold; margin: 0 0 8px 0;"><i class="fa-solid fa-arrow-down"></i> 已為您生成圖片！請【長按下方圖片】即可直接儲存至手機相簿喔！</p>
+            <img id="generated-img" src="" alt="薪資單圖片">
         </div>
 
-        <div id="page-main" class="page">
-            <h2>鳳麟 竹南店 薪資查詢系統</h2>
-            <div class="welcome-msg" id="greeting-txt"></div>
-            <div class="input-group">
-                <label for="month-select">1. 選擇查詢月份</label>
-                <select id="month-select"></select>
-            </div>
-            <label>2. 點擊您的姓名</label>
-            <div class="employee-grid" id="employee-box"></div>
-        </div>
+        <button class="btn-secondary" style="margin-top: 15px;" onclick="logout()">安全登出</button>
+    </div>
 
-        <div id="page-auth" class="page">
-            <h2 id="auth-title">身分驗證</h2>
-            <div class="input-group">
-                <label for="password"><i class="fas fa-lock"></i> 密碼 <span style="color: #d94126;">（身分證後4碼）</span></label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="請輸入4位數字密碼" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    <i class="fa-solid fa-eye toggle-password" id="eye-icon" onclick="togglePasswordVisibility()"></i>
-                </div>
-                <label class="remember-wrapper">
-                    <input type="checkbox" id="remember-pwd"> 記住我的密碼
-                </label>
-                <div class="error-msg" id="error-txt">密碼錯誤！</div>
-            </div>
-            <button class="btn-primary" id="submit-pwd-btn" onclick="verifyPassword()">確認送出</button>
-            <button class="btn-secondary" onclick="goBack('page-main')">返回主畫面</button>
-        </div>
+</div>
 
-        <div id="page-slip" class="page">
-            <div id="capture-area" style="padding: 10px; border-radius: 8px;">
-                <h2 id="slip-title" style="margin-top: 10px;">薪資明細表</h2>
-                <div class="salary-slip">
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-user"></i><strong>員工姓名：</strong></span>
-                        <span id="slip-name" style="font-weight: bold;"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-coins"></i><span>時薪：</span></span>
-                        <span id="slip-wage"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-clock"></i><span>時數：</span></span>
-                        <span id="slip-hours"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-business-time"></i><span>遲到(分)：</span></span>
-                        <span id="slip-latemin"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-minus-circle"></i><span>預支：</span></span>
-                        <span id="slip-advance" class="deduct-style"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-minus-circle"></i><span>營損：</span></span>
-                        <span id="slip-loss" class="deduct-style"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-triangle-exclamation"></i><span>缺失：</span></span>
-                        <span id="slip-missing"></span>
-                    </div>
-                    <div class="slip-row">
-                        <span class="slip-label"><i class="fa-solid fa-circle-exclamation"></i><span>遲到次數：</span></span>
-                        <span id="slip-latecount"></span>
-                    </div>
-                    <div class="slip-total">
-                        <span class="slip-label" style="color: #333;"><i class="fa-solid fa-wallet" style="color: #d9534f;"></i><span>實領薪資(不含獎金)：</span></span>
-                        <span id="slip-total"></span>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="btn-primary" style="background-color: #28a745; margin-top: 15px;" onclick="downloadSlip()"><i class="fa-solid fa-download"></i> 下載薪資單明細截圖</button>
-            <button class="btn-secondary" style="margin-top: 15px;" onclick="logout()">安全登出</button>
-        </div>
-
+<!-- LINE 智慧提示彈窗 -->
+<div class="line-modal" id="line-alert">
+    <div class="line-modal-content">
+        <h3 style="color: #d9534f; margin-top: 0;"><i class="fa-solid fa-circle-exclamation"></i> LINE 限制提示</h3>
+        <p style="font-size: 14px; text-align: left; line-height: 1.5; opacity: 0.9;">
+            偵測到您目前使用 LINE 開啟網頁，LINE 系統不允許直接點擊下載檔案。<br><br>
+            <strong>💡 解決方法：</strong><br>
+            請點擊螢幕【右上角 <code>•••</code>】或右下角，選擇<strong>【使用預設瀏覽器開啟】</strong>（如 Safari 或 Chrome），就可以正常下載囉！
+        </p>
+        <button class="btn-primary" style="margin-top: 10px;" onclick="closeLineModal()">知道了</button>
     </div>
 </div>
 
@@ -288,12 +317,11 @@
     let allEmployees = [];
 
     window.onload = function() { 
-        initTheme();     // 初始化黑白主題
-        updateGreeting(); // 觸發智慧問候語
+        initTheme();     
+        updateGreeting(); 
         initSystem(); 
     };
 
-    // ✨ 升級功能 19：根據當前時間給予最貼心的問候
     function updateGreeting() {
         const hour = new Date().getHours();
         let greeting = "";
@@ -311,7 +339,6 @@
         document.getElementById('greeting-txt').innerText = greeting;
     }
 
-    // 🌙 升級功能 2：主題初始化與切換功能
     function initTheme() {
         const savedTheme = localStorage.getItem('userTheme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -339,23 +366,47 @@
         localStorage.setItem('userTheme', newTheme);
     }
 
-    // ✨ 升級功能 20：利用 html2canvas 把網頁明細轉成一張相簿相片
+    // 判斷當前是否處於 LINE 內建瀏覽器環境
+    function isLineBrowser() {
+        const ua = navigator.userAgent.toLowerCase();
+        return ua.indexOf('line') !== -1;
+    }
+
+    function closeLineModal() {
+        document.getElementById('line-alert').style.display = 'none';
+    }
+
+    // 優化後的下載與截圖生成邏輯
     function downloadSlip() {
         const target = document.getElementById('capture-area');
         const originalBg = target.style.background;
         
-        // 為了確保截圖乾淨，暫時給它一個對應主題的微底色
         const currentTheme = document.documentElement.getAttribute('data-theme');
         target.style.background = currentTheme === 'dark' ? '#1e1e1e' : '#ffffff';
         target.style.color = currentTheme === 'dark' ? '#ffffff' : '#000000';
 
         html2canvas(target, { scale: 2, useCORS: true }).then(canvas => {
-            target.style.background = originalBg; // 截完圖立刻還原透明度
-            
-            const link = document.createElement('a');
-            link.download = `${document.getElementById('month-select').value}_鳳麟竹南店_${currentSelectedEmployee}_薪資明細.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            target.style.background = originalBg; 
+            const imgDataURL = canvas.toDataURL('image/png');
+
+            // 只要一按下載，不論如何都先把實體圖片渲染出來（防線，讓員工隨時能長按儲存）
+            const previewArea = document.getElementById('img-preview-area');
+            const previewImg = document.getElementById('generated-img');
+            previewImg.src = imgDataURL;
+            previewArea.style.display = 'block';
+
+            // 如果是 LINE 環境，跳出導引至預設瀏覽器的提示彈窗
+            if (isLineBrowser()) {
+                document.getElementById('line-alert').style.display = 'flex';
+                // 幫他們把網頁滾動到生成的圖片那邊，方便他們直接長按
+                previewArea.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                // 正常的外部瀏覽器（Safari/Chrome），直接觸發下載
+                const link = document.createElement('a');
+                link.download = `${document.getElementById('month-select').value}_鳳麟竹南店_${currentSelectedEmployee}_薪資明細.png`;
+                link.href = imgDataURL;
+                link.click();
+            }
         });
     }
 
@@ -482,6 +533,9 @@
                 document.getElementById('slip-latecount').innerText = empData.lateCount + " 次";
                 document.getElementById('slip-total').innerText = `$ ${formatNumber(empData.totalSalary)} 元`;
                 
+                // 每次新登入時，先隱藏上次生成的舊圖片預覽
+                document.getElementById('img-preview-area').style.display = 'none';
+
                 switchPage('page-slip');
             } else {
                 document.getElementById('error-txt').innerText = data.message || "密碼錯誤！";
