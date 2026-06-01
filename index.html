@@ -150,7 +150,7 @@
         .error-msg { color: var(--apple-danger); font-size: 14px; margin-top: 14px; text-align: center; display: none; }
         .welcome-msg { text-align: center; font-size: 14px; color: var(--apple-text-gray); margin-bottom: 36px; }
         
-        /* 圖片預覽區塊樣式（原封不動呈現在正下方） */
+        /* 圖片預覽區塊樣式（原封不動呈呈現呈現呈現在正下方） */
         .img-preview-container { margin-top: 32px; display: none; text-align: center; animation: pageIn 0.4s var(--apple-ease) forwards; border-top: 1px dashed var(--apple-border); padding-top: 24px; }
         .preview-tip { font-size: 14px; color: var(--apple-blue); margin-bottom: 12px; font-weight: 500; }
         .generated-salary-img { width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); border: 1px solid var(--apple-border); }
@@ -190,13 +190,13 @@
             <div class="input-group">
                 <label>請輸入身分證後 4 碼</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" inputmode="numeric" maxlength="4" placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input type="password" id="password" inputmode="numeric" maxlength="4" placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeydown="if(event.key==='Enter') verifyPassword()">
                     <span class="toggle-password-txt" id="eye-icon" onclick="togglePasswordVisibility()">顯示</span>
                 </div>
                 <label class="remember-wrapper"><input type="checkbox" id="remember-pwd"> 記住密碼</label>
                 <div class="error-msg" id="error-txt">密碼不正確。</div>
             </div>
-            <button class="btn-primary" onclick="verifyPassword()">驗證</button>
+            <button class="btn-primary" onmousedown="verifyPassword()" ontouchstart="verifyPassword(); event.preventDefault();">驗證</button>
             <button class="btn-link" onclick="goBack('page-main')">返回主畫面</button>
         </div>
 
@@ -278,6 +278,8 @@
         window.currentSelectedEmployee = name;
         document.getElementById('auth-title').innerText = name;
         document.getElementById('password').value = localStorage.getItem('savedPwd_' + name) || "";
+        // 切換頁面時順便把錯誤訊息藏起來
+        document.getElementById('error-txt').style.display = "none";
         switchPage('page-auth');
     }
 
@@ -290,7 +292,13 @@
 
     function verifyPassword() {
         const inputPwd = document.getElementById('password').value;
+        if (!inputPwd) return; // 沒輸入密碼不反應
+        
         const selectedMonth = document.getElementById('month-select').value;
+        
+        // 隱藏之前的錯誤訊息
+        document.getElementById('error-txt').style.display = "none";
+
         fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(window.currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
         .then(r => r.json())
         .then(data => {
@@ -308,7 +316,6 @@
                 document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
                 document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
                 
-                // 每次重新驗證時，重設下方的圖片狀態為隱藏
                 document.getElementById('preview-box').style.display = 'none';
                 document.getElementById('action-btn').style.display = 'block'; 
                 
@@ -325,21 +332,14 @@
         const generatedImg = document.getElementById('generated-img');
         const actionBtn = document.getElementById('action-btn');
 
-        // 將明細表渲染成 base64 圖片
         html2canvas(captureArea, { 
             scale: 2,
             useCORS: true,
             backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#000000' : '#f5f5f7'
         }).then(canvas => {
             generatedImg.src = canvas.toDataURL('image/png');
-            
-            // 關鍵修改：原本的表格 captureArea 保持 block（不隱藏），直接秀出下方的圖片區塊
             previewBox.style.display = 'block';
-            
-            // 產生完圖片後，把產生按鈕隱藏（或者您可以保留，這邊選擇隱藏讓版面更乾淨）
             actionBtn.style.display = 'none';
-            
-            // 自動將畫面平滑滾動到剛產生的圖片位置，方便員工長按
             previewBox.scrollIntoView({ behavior: 'smooth' });
         });
     }
