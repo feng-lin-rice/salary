@@ -312,11 +312,19 @@
         .then(r => r.json())
         .then(data => {
             const monthSelect = document.getElementById('month-select');
-            const currentMonthStr = (new Date().getMonth() + 1) + "月份"; 
+            
+            // 取得今天的日期並往前推一個月（發放上個月的薪資）
+            const today = new Date();
+            today.setMonth(today.getMonth() - 1);
+            const prevMonthStr = (today.getMonth() + 1) + "月份"; 
+            
             data.months.forEach(m => {
                 let opt = document.createElement('option');
                 opt.value = m; opt.innerText = m;
-                if (m === currentMonthStr) opt.selected = true;
+                // 用 trim() 清除可能看不到的空白，強制精準比對上個月月份
+                if (m.trim() === prevMonthStr.trim()) {
+                    opt.selected = true;
+                }
                 monthSelect.appendChild(opt);
             });
             const employeeBox = document.getElementById('employee-box');
