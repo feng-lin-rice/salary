@@ -312,7 +312,7 @@
         .then(r => r.json())
         .then(data => {
             const monthSelect = document.getElementById('month-select');
-            const currentMonthStr = (new Date().getMonth() + 1) + "月"; 
+            const currentMonthStr = (new Date().getMonth() + 1) + "月份"; 
             data.months.forEach(m => {
                 let opt = document.createElement('option');
                 opt.value = m; opt.innerText = m;
