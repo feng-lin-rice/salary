@@ -21,6 +21,21 @@
             --apple-ease: cubic-bezier(0.28, 0.11, 0.32, 1);
         }
 
+        /* 系統預設深色模式時自動套用 */
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --apple-bg: #000000;
+                --apple-text: #f5f5f7;
+                --apple-text-gray: #86868b;
+                --apple-blue: #2997ff;
+                --apple-blue-hover: #43a4ff;
+                --apple-danger: #ff453a;
+                --input-bg: rgba(255, 255, 255, 0.08);
+                --apple-border: rgba(255, 255, 255, 0.15);
+            }
+        }
+
+        /* 手動切換為深色模式 */
         [data-theme="dark"] {
             --apple-bg: #000000;
             --apple-text: #f5f5f7;
@@ -67,6 +82,10 @@
             transition: background 0.6s var(--apple-ease);
         }
         [data-theme="dark"] .apple-nav { background: rgba(0, 0, 0, 0.75); }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) .apple-nav { background: rgba(0, 0, 0, 0.75); }
+        }
+
         .nav-brand { font-size: 14px; font-weight: 500; letter-spacing: -0.01em; opacity: 0.8; }
         
         .theme-toggle-btn {
@@ -81,7 +100,7 @@
         }
         .theme-toggle-btn:hover { color: var(--apple-blue); }
 
-        /* 完美修正：大螢幕防重疊排列，小螢幕自適應 */
+        /* 大螢幕防重疊排列，小螢幕自適應 */
         .main-wrapper {
             flex: 1;
             width: 100%;
@@ -247,7 +266,7 @@
                     <input type="password" id="password" inputmode="numeric" maxlength="4" placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeydown="if(event.key==='Enter') verifyPassword()">
                     <span class="toggle-password-txt" id="eye-icon" onclick="togglePasswordVisibility()">顯示</span>
                 </div>
-                <label class="remember-wrapper"><input type="checkbox" id="remember-pwd"> 記住密碼</label>
+                <label class="remember-wrapper"><input type="checkbox" id="remember-pwd" checked> 記住密碼</label>
                 <div class="error-msg" id="error-txt">密碼不正確。</div>
             </div>
             <button class="btn-primary" id="verify-btn" onmousedown="verifyPassword()" ontouchstart="verifyPassword(); event.preventDefault();">驗證</button>
@@ -295,13 +314,17 @@
     }
 
     function initTheme() {
-        const savedTheme = localStorage.getItem('userTheme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        document.getElementById('theme-btn').innerText = savedTheme === 'dark' ? '淺色模式' : '深色模式';
+        const savedTheme = localStorage.getItem('userTheme');
+        const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        let currentTheme = savedTheme || (isSystemDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '淺色模式' : '深色模式';
     }
 
     function toggleTheme() {
-        const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('userTheme', newTheme);
         document.getElementById('theme-btn').innerText = newTheme === 'dark' ? '淺色模式' : '深色模式';
@@ -321,7 +344,6 @@
             data.months.forEach(m => {
                 let opt = document.createElement('option');
                 opt.value = m; opt.innerText = m;
-                // 用 trim() 清除可能看不到的空白，強制精準比對上個月月份
                 if (m.trim() === prevMonthStr.trim()) {
                     opt.selected = true;
                 }
@@ -342,7 +364,10 @@
     function selectEmployee(name) {
         window.currentSelectedEmployee = name;
         document.getElementById('auth-title').innerText = name;
-        document.getElementById('password').value = localStorage.getItem('savedPwd_' + name) || "";
+        
+        // 自動帶入該員工儲存的密碼（不限月份）
+        const savedPassword = localStorage.getItem('savedPwd_' + name) || "";
+        document.getElementById('password').value = savedPassword;
         
         document.getElementById('error-txt').classList.remove('text-shake');
         
@@ -382,7 +407,9 @@
         .then(r => r.json())
         .then(data => {
             if (data.status === "success") {
-                if (document.getElementById('remember-pwd').checked) localStorage.setItem('savedPwd_' + window.currentSelectedEmployee, inputPwd);
+                if (document.getElementById('remember-pwd').checked) {
+                    localStorage.setItem('savedPwd_' + window.currentSelectedEmployee, inputPwd);
+                }
                 const d = data.data;
                 document.getElementById('slip-title').innerText = `${selectedMonth} 薪資明細`;
                 document.getElementById('slip-name').innerText = window.currentSelectedEmployee;
@@ -421,10 +448,13 @@
         const generatedImg = document.getElementById('generated-img');
         const actionBtn = document.getElementById('action-btn');
 
+        // 偵測當前背景顏色以確保產生的薪資單圖片顏色一致
+        const currentTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
         html2canvas(captureArea, { 
             scale: 2,
             useCORS: true,
-            backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#000000' : '#f5f5f7'
+            backgroundColor: currentTheme === 'dark' ? '#000000' : '#f5f5f7'
         }).then(canvas => {
             generatedImg.src = canvas.toDataURL('image/png');
             previewBox.style.display = 'block';
