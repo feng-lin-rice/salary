@@ -305,6 +305,8 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwnlxGByCNwcbJaLOP4kJB6UDHTZHRf3on24LAA60zKFtEQKCnfvOYHN6KdowKyTdnJ/exec"; 
+    let globalMonthlyData = {}; // 暫存各月份的名單
+
     window.onload = function() { initTheme(); updateGreeting(); initSystem(); };
 
     function updateGreeting() {
@@ -316,7 +318,6 @@
     function initTheme() {
         const savedTheme = localStorage.getItem('userTheme');
         const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
         let currentTheme = savedTheme || (isSystemDark ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', currentTheme);
         document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '淺色模式' : '深色模式';
@@ -335,12 +336,14 @@
         .then(r => r.json())
         .then(data => {
             const monthSelect = document.getElementById('month-select');
+            globalMonthlyData = data.monthlyData || {};
             
-            // 取得今天的日期並往前推一個月（發放上個月的薪資）
+            // 預設選擇上個月
             const today = new Date();
             today.setMonth(today.getMonth() - 1);
             const prevMonthStr = (today.getMonth() + 1) + "月份"; 
             
+            monthSelect.innerHTML = "";
             data.months.forEach(m => {
                 let opt = document.createElement('option');
                 opt.value = m; opt.innerText = m;
@@ -349,15 +352,36 @@
                 }
                 monthSelect.appendChild(opt);
             });
-            const employeeBox = document.getElementById('employee-box');
-            data.names.forEach(name => {
-                let btn = document.createElement('button');
-                btn.className = 'emp-btn';
-                btn.innerText = name;
-                btn.onclick = () => selectEmployee(name);
-                employeeBox.appendChild(btn);
-            });
+
+            // 監聽月份選單切換，動態改變員工按鈕名單
+            monthSelect.onchange = renderEmployeeButtons;
+            
+            // 初始化繪製員工按鈕
+            renderEmployeeButtons();
+            
             switchPage('page-main');
+        });
+    }
+
+    // 根據選擇的月份動態顯示該月員工按鈕
+    function renderEmployeeButtons() {
+        const selectedMonth = document.getElementById('month-select').value;
+        const employeeBox = document.getElementById('employee-box');
+        employeeBox.innerHTML = "";
+
+        const names = globalMonthlyData[selectedMonth] || [];
+
+        if (names.length === 0) {
+            employeeBox.innerHTML = `<div style="grid-column: span 2; text-align: center; color: var(--apple-text-gray); font-size: 14px; padding: 20px 0;">該月份尚無員工資料</div>`;
+            return;
+        }
+
+        names.forEach(name => {
+            let btn = document.createElement('button');
+            btn.className = 'emp-btn';
+            btn.innerText = name;
+            btn.onclick = () => selectEmployee(name);
+            employeeBox.appendChild(btn);
         });
     }
 
@@ -365,11 +389,12 @@
         window.currentSelectedEmployee = name;
         document.getElementById('auth-title').innerText = name;
         
-        // 自動帶入該員工儲存的密碼（不限月份）
         const savedPassword = localStorage.getItem('savedPwd_' + name) || "";
         document.getElementById('password').value = savedPassword;
         
-        document.getElementById('error-txt').classList.remove('text-shake');
+        const errorMsg = document.getElementById('error-txt');
+        errorMsg.classList.remove('text-shake');
+        errorMsg.style.display = 'none';
         
         const verifyBtn = document.getElementById('verify-btn');
         verifyBtn.innerHTML = "驗證";
@@ -402,6 +427,7 @@
 
         const selectedMonth = document.getElementById('month-select').value;
         errorMsg.classList.remove('text-shake'); 
+        errorMsg.style.display = 'none';
 
         fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(window.currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
         .then(r => r.json())
@@ -426,7 +452,16 @@
                 document.getElementById('action-btn').style.display = 'block'; 
                 
                 switchPage('page-slip');
+            } else if (data.status === "not_open") {
+                // 尚未開放查詢提示
+                errorMsg.innerText = "該月份薪資尚未結算開放查詢。";
+                errorMsg.style.display = 'block';
+                void errorMsg.offsetWidth; 
+                errorMsg.classList.add('text-shake');
             } else {
+                // 密碼錯誤提示
+                errorMsg.innerText = "密碼不正確。";
+                errorMsg.style.display = 'block';
                 void errorMsg.offsetWidth; 
                 errorMsg.classList.add('text-shake');
             }
@@ -448,7 +483,6 @@
         const generatedImg = document.getElementById('generated-img');
         const actionBtn = document.getElementById('action-btn');
 
-        // 偵測當前背景顏色以確保產生的薪資單圖片顏色一致
         const currentTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
         html2canvas(captureArea, { 
@@ -456,10 +490,24 @@
             useCORS: true,
             backgroundColor: currentTheme === 'dark' ? '#000000' : '#f5f5f7'
         }).then(canvas => {
-            generatedImg.src = canvas.toDataURL('image/png');
+            const imgData = canvas.toDataURL('image/png');
+            
+            // 顯示預覽圖（供手機長按儲存）
+            generatedImg.src = imgData;
             previewBox.style.display = 'block';
             actionBtn.style.display = 'none';
             previewBox.scrollIntoView({ behavior: 'smooth' });
+
+            // 自動觸發下載（電腦與支援的瀏覽器）
+            const selectedMonth = document.getElementById('month-select').value;
+            const empName = window.currentSelectedEmployee || "員工";
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imgData;
+            downloadLink.download = `${selectedMonth}_${empName}_薪資明細.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
         });
     }
 
