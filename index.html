@@ -338,38 +338,48 @@
             const monthSelect = document.getElementById('month-select');
             globalMonthlyData = data.monthlyData || {};
             
-            // 預設選擇上個月
+            // 計算預設選取的上個月（格式：X月份）
             const today = new Date();
             today.setMonth(today.getMonth() - 1);
             const prevMonthStr = (today.getMonth() + 1) + "月份"; 
             
             monthSelect.innerHTML = "";
-            data.months.forEach(m => {
+            let selectedTargetMonth = "";
+
+            data.months.forEach((m, idx) => {
                 let opt = document.createElement('option');
-                opt.value = m; opt.innerText = m;
+                opt.value = m; 
+                opt.innerText = m;
                 if (m.trim() === prevMonthStr.trim()) {
                     opt.selected = true;
+                    selectedTargetMonth = m;
+                } else if (idx === 0 && !selectedTargetMonth) {
+                    selectedTargetMonth = m;
                 }
                 monthSelect.appendChild(opt);
             });
 
             // 監聽月份選單切換，動態改變員工按鈕名單
-            monthSelect.onchange = renderEmployeeButtons;
+            monthSelect.onchange = () => renderEmployeeButtons(monthSelect.value);
             
-            // 初始化繪製員工按鈕
-            renderEmployeeButtons();
+            // 初始化繪製員工按鈕（明確傳入目前選取的月份）
+            renderEmployeeButtons(selectedTargetMonth || monthSelect.value);
             
             switchPage('page-main');
+        })
+        .catch(err => {
+            console.error(err);
+            alert("系統載入失敗，請重新整理頁面。");
         });
     }
 
     // 根據選擇的月份動態顯示該月員工按鈕
-    function renderEmployeeButtons() {
-        const selectedMonth = document.getElementById('month-select').value;
+    function renderEmployeeButtons(targetMonth) {
         const employeeBox = document.getElementById('employee-box');
         employeeBox.innerHTML = "";
 
-        const names = globalMonthlyData[selectedMonth] || [];
+        const month = targetMonth || document.getElementById('month-select').value;
+        const names = globalMonthlyData[month] || [];
 
         if (names.length === 0) {
             employeeBox.innerHTML = `<div style="grid-column: span 2; text-align: center; color: var(--apple-text-gray); font-size: 14px; padding: 20px 0;">該月份尚無員工資料</div>`;
