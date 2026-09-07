@@ -339,30 +339,46 @@
             const monthSelect = document.getElementById('month-select');
             globalMonthlyData = data.monthlyData || {};
             
-            // 計算預設選取的上個月數字 (例如：8)
+            // 1. 計算預設目標：上一個月的年份與月份數字
             const today = new Date();
             today.setMonth(today.getMonth() - 1);
-            const prevMonthNum = today.getMonth() + 1;
-            
+            const targetYear = today.getFullYear(); 
+            const targetMonth = today.getMonth() + 1; 
+
             monthSelect.innerHTML = "";
             let selectedTargetMonth = "";
 
             if (data.months && data.months.length > 0) {
-                data.months.forEach((m, idx) => {
+                data.months.forEach((m) => {
                     let opt = document.createElement('option');
                     opt.value = m; 
                     opt.innerText = m;
 
-                    // 彈性比對：不論後端傳 "8月"、"8月份" 或 "08月" 都能正確匹配
-                    const mNum = parseInt(m.replace(/[^0-9]/g, ''), 10);
-                    if (mNum === prevMonthNum && !selectedTargetMonth) {
-                        opt.selected = true;
-                        selectedTargetMonth = m;
+                    // 2. 從分頁名稱（如 "2026年8月" 或 "2026年08月"）解析數字
+                    const matches = m.match(/(\d{4})年\s*(\d{1,2})月/);
+                    
+                    if (matches) {
+                        const optYear = parseInt(matches[1], 10);
+                        const optMonth = parseInt(matches[2], 10);
+
+                        // 3. 比對年份與月份
+                        if (optYear === targetYear && optMonth === targetMonth && !selectedTargetMonth) {
+                            opt.selected = true;
+                            selectedTargetMonth = m;
+                        }
+                    } else {
+                        // 備用方案：若為不帶年份之舊名稱（如 "8月"），進行彈性比對
+                        const mNum = parseInt(m.replace(/[^0-9]/g, ''), 10);
+                        if (mNum === targetMonth && !selectedTargetMonth) {
+                            opt.selected = true;
+                            selectedTargetMonth = m;
+                        }
                     }
+                    
                     monthSelect.appendChild(opt);
                 });
 
-                // 若比對不到上個月，則預設選取選單中的第一個月份
+                // 若比對不到上個月，則預設選取下拉選單中的第一個選項
                 if (!selectedTargetMonth) {
                     selectedTargetMonth = data.months[0];
                     monthSelect.options[0].selected = true;
