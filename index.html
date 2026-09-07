@@ -167,7 +167,7 @@
         input[type="password"], input[type="text"] { width: 100%; padding: 14px 0; border: none; border-bottom: 1.5px solid var(--apple-border); background: transparent; font-size: 26px; letter-spacing: 6px; color: var(--apple-text); outline: none; text-align: center; transition: border-color 0.3s var(--apple-ease); }
         input[type="password"]:focus, input[type="text"]:focus { border-bottom-color: var(--apple-blue); }
         
-        .toggle-password-txt { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--apple-blue); font-size: 13px; font-weight: 400; opacity: 0.9; }
+        .toggle-password-txt { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--apple-blue); font-size: 13px; font-weight: 400; opacity: 0.9; user-select: none; }
         .toggle-password-txt:hover { opacity: 1; }
         .remember-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px; font-size: 13px; color: var(--apple-text-gray); cursor: pointer; user-select: none; }
 
@@ -269,7 +269,7 @@
                 <label class="remember-wrapper"><input type="checkbox" id="remember-pwd" checked> 記住密碼</label>
                 <div class="error-msg" id="error-txt">密碼不正確。</div>
             </div>
-            <button class="btn-primary" id="verify-btn" onmousedown="verifyPassword()" ontouchstart="verifyPassword(); event.preventDefault();">驗證</button>
+            <button class="btn-primary" id="verify-btn" onclick="verifyPassword()">驗證</button>
             <button class="btn-link" id="back-btn" onclick="goBack('page-main')">返回主畫面</button>
         </div>
 
@@ -445,6 +445,8 @@
             if (data.status === "success") {
                 if (document.getElementById('remember-pwd').checked) {
                     localStorage.setItem('savedPwd_' + window.currentSelectedEmployee, inputPwd);
+                } else {
+                    localStorage.removeItem('savedPwd_' + window.currentSelectedEmployee);
                 }
                 const d = data.data;
                 document.getElementById('slip-title').innerText = `${selectedMonth} 薪資明細`;
@@ -496,7 +498,7 @@
         const currentTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
         html2canvas(captureArea, { 
-            scale: 2,
+            scale: window.devicePixelRatio || 2,
             useCORS: true,
             backgroundColor: currentTheme === 'dark' ? '#000000' : '#f5f5f7'
         }).then(canvas => {
