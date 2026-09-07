@@ -338,31 +338,40 @@
             const monthSelect = document.getElementById('month-select');
             globalMonthlyData = data.monthlyData || {};
             
-            // 計算預設選取的上個月（格式：X月份）
+            // 計算預設選取的上個月數字 (例如：8)
             const today = new Date();
             today.setMonth(today.getMonth() - 1);
-            const prevMonthStr = (today.getMonth() + 1) + "月份"; 
+            const prevMonthNum = today.getMonth() + 1;
             
             monthSelect.innerHTML = "";
             let selectedTargetMonth = "";
 
-            data.months.forEach((m, idx) => {
-                let opt = document.createElement('option');
-                opt.value = m; 
-                opt.innerText = m;
-                if (m.trim() === prevMonthStr.trim()) {
-                    opt.selected = true;
-                    selectedTargetMonth = m;
-                } else if (idx === 0 && !selectedTargetMonth) {
-                    selectedTargetMonth = m;
+            if (data.months && data.months.length > 0) {
+                data.months.forEach((m, idx) => {
+                    let opt = document.createElement('option');
+                    opt.value = m; 
+                    opt.innerText = m;
+
+                    // 彈性比對：不論後端傳 "8月"、"8月份" 或 "08月" 都能正確匹配
+                    const mNum = parseInt(m.replace(/[^0-9]/g, ''), 10);
+                    if (mNum === prevMonthNum && !selectedTargetMonth) {
+                        opt.selected = true;
+                        selectedTargetMonth = m;
+                    }
+                    monthSelect.appendChild(opt);
+                });
+
+                // 若比對不到上個月，則預設選取選單中的第一個月份
+                if (!selectedTargetMonth) {
+                    selectedTargetMonth = data.months[0];
+                    monthSelect.options[0].selected = true;
                 }
-                monthSelect.appendChild(opt);
-            });
+            }
 
             // 監聽月份選單切換，動態改變員工按鈕名單
             monthSelect.onchange = () => renderEmployeeButtons(monthSelect.value);
             
-            // 初始化繪製員工按鈕（明確傳入目前選取的月份）
+            // 初始化繪製員工按鈕
             renderEmployeeButtons(selectedTargetMonth || monthSelect.value);
             
             switchPage('page-main');
