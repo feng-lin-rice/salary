@@ -341,6 +341,7 @@
             
             // 1. 計算預設目標：上一個月的年份與月份數字
             const today = new Date();
+            today.setDate(1); // 先定位到本月 1 日，避免月底減月時日期溢位
             today.setMonth(today.getMonth() - 1);
             const targetYear = today.getFullYear(); 
             const targetMonth = today.getMonth() + 1; 
