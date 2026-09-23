@@ -6,11 +6,14 @@
     <title>鳳麟 員工薪資查詢系統</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="styles.css">
+<style>
+.brand-logo{width:34px;height:34px;object-fit:contain;display:block;flex:0 0 auto}.hero-logo{width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 10px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.15))}.slip-brand .brand-logo{width:52px;height:52px}@media(max-width:420px){.hero-logo{width:78px;height:78px;margin-bottom:6px}}
+</style>
 </head>
 <body>
 
 <div class="apple-nav">
-    <div class="nav-brand"><span class="brand-mark">鳳</span><span><strong>鳳麟</strong><small>竹南店</small></span></div>
+    <div class="nav-brand"><img class="brand-logo" src="feng-lin-logo.png" alt="鳳麟 Logo"><span><strong>鳳麟</strong><small>竹南店</small></span></div>
     <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn">深色模式</button>
 </div>
 
@@ -26,7 +29,7 @@
         </div>
 
         <div id="page-main" class="page">
-            <div class="hero-mark">鳳</div>
+            <img class="hero-logo" src="feng-lin-logo.png" alt="鳳麟 Logo">
             <h2>薪資查詢系統</h2>
             <div class="welcome-msg" id="greeting-txt"></div>
             <div class="usage-guide"><span><b>1</b>選月份</span><i></i><span><b>2</b>選姓名</span><i></i><span><b>3</b>身分驗證</span></div>
@@ -55,7 +58,7 @@
 
         <div id="page-slip" class="page">
             <div id="capture-area" class="salary-card">
-                <div class="slip-brand"><span class="brand-mark">鳳</span><div><strong>鳳麟竹南店</strong><small>員工薪資明細</small></div></div>
+                <div class="slip-brand"><img class="brand-logo" src="feng-lin-logo.png" alt="鳳麟 Logo"><div><strong>鳳麟竹南店</strong><small>員工薪資明細</small></div></div>
                 <h2 id="slip-title" style="font-size: 24px; text-align: center; margin-bottom: 20px;">薪資明細表</h2>
                 <div class="salary-slip">
                     <div class="slip-row"><span>員工姓名</span><span id="slip-name" style="font-weight: 500;"></span></div>
