@@ -28,6 +28,7 @@
         <div id="page-main" class="page">
             <h2>薪資查詢系統</h2>
             <div class="welcome-msg" id="greeting-txt"></div>
+            <div class="usage-guide"><span>1 選月份</span><span>2 選姓名</span><span>3 輸入後四碼</span></div>
             <div class="input-group">
                 <label>選擇查詢月份</label>
                 <div class="select-wrapper"><select id="month-select"></select></div>
@@ -47,7 +48,7 @@
                 <label class="remember-wrapper"><input type="checkbox" id="remember-pwd" checked> 記住密碼</label>
                 <div class="error-msg" id="error-txt">密碼不正確。</div>
             </div>
-            <button class="btn-primary" id="verify-btn" onmousedown="verifyPassword()" ontouchstart="verifyPassword(); event.preventDefault();">驗證</button>
+            <button class="btn-primary" id="verify-btn" onclick="verifyPassword()">驗證</button>
             <button class="btn-link" id="back-btn" onclick="goBack('page-main')">返回主畫面</button>
         </div>
 
@@ -66,6 +67,7 @@
                     <div class="slip-total-container">
                         <div class="slip-total"><span>實領薪資</span><span id="slip-total"></span></div>
                         <span class="bonus-tip">（不含獎金）</span>
+                    <div class="salary-calculation" id="salary-calculation"></div>
                     </div>
                 </div>
             </div>
