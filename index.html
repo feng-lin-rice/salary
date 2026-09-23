@@ -1,88 +1,105 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鳳麟 員工薪資查詢系統</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-<div class="apple-nav">
-    <div class="nav-brand">鳳麟 竹南店</div>
-    <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn">深色模式</button>
-</div>
+function doGet(e) {
+  var action = e.parameter.action;
+  
+  // 1. 取得所有月份與各月份的員工名單
+  if (action === "getInitData") {
+    var sheets = ss.getSheets();
+    var monthList = [];
+    var monthlyData = {};
 
-<div class="main-wrapper" id="main-card">
-    <div class="content-container">
+    sheets.forEach(function(sheet) {
+      var sheetName = sheet.getName();
+      // 過濾掉不是月份的分頁 (只要工作表名稱包含 "月" 就抓取)
+      if (sheetName.indexOf("月") > -1) {
+        monthList.push(sheetName);
+        
+        // 抓取該月份 B 欄的員工姓名 (從第 2 列開始)
+        var lastRow = sheet.getLastRow();
+        var names = [];
+        if (lastRow >= 2) {
+          var rawValues = sheet.getRange("B2:B" + lastRow).getValues();
+          for (var i = 0; i < rawValues.length; i++) {
+            var val = rawValues[i][0];
+            if (val !== null && val !== undefined && val.toString().trim() !== "") {
+              var cleanName = val.toString().trim();
+              if (names.indexOf(cleanName) === -1) { // 避免姓名重複
+                names.push(cleanName);
+              }
+            }
+          }
+        }
+        monthlyData[sheetName] = names;
+      }
+    });
 
-        <div id="page-loading" class="page active">
-            <h2>薪資查詢系統</h2>
-            <div style="margin-top: 40px; text-align: center;">
-                <div class="apple-spinner"></div>
-                <div style="font-size: 14px; color: var(--apple-text-gray); margin-top: 24px; letter-spacing: -0.01em;">連線中，請稍候</div>
-            </div>
-        </div>
+    var openMonths = monthList.filter(function(month) { return isMonthOpen_(month); });
+    return ContentService.createTextOutput(JSON.stringify({
+      months: monthList,
+      openMonths: openMonths,
+      monthlyData: monthlyData
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 
-        <div id="page-main" class="page">
-            <h2>薪資查詢系統</h2>
-            <div class="welcome-msg" id="greeting-txt"></div>
-            <div class="usage-guide"><span>1 選月份</span><span>2 選姓名</span><span>3 輸入身分證字號後四碼</span></div>
-            <div class="input-group">
-                <label>選擇查詢月份</label>
-                <div class="select-wrapper"><select id="month-select"></select></div>
-            </div>
-            <label style="margin-bottom: 6px;">選擇您的姓名</label>
-            <div class="employee-grid" id="employee-box"></div>
-        </div>
+  // 2. 查詢薪資（直接看網頁選哪個月，就進去那個分頁找人）
+  if (action === "getSalary") {
+    var month = e.parameter.month;
+    var name = e.parameter.name;
+    var password = e.parameter.password;
+    var sheet = ss.getSheetByName(month); // 直接切換到該月份分頁
+    
+    if (!sheet) return ContentService.createTextOutput(JSON.stringify({status:"error", msg:"找不到該月份"})).setMimeType(ContentService.MimeType.JSON);
 
-        <div id="page-auth" class="page">
-            <h2 id="auth-title">身分驗證</h2>
-            <div class="input-group">
-                <label>請輸入身分證後 4 碼</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" inputmode="numeric" maxlength="4" placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeydown="if(event.key==='Enter') verifyPassword()">
-                    <span class="toggle-password-txt" id="eye-icon" onclick="togglePasswordVisibility()">顯示</span>
-                </div>
-                <label class="remember-wrapper"><input type="checkbox" id="remember-pwd" checked> 記住密碼</label>
-                <div class="error-msg" id="error-txt">密碼不正確。</div>
-            </div>
-            <button class="btn-primary" id="verify-btn" onclick="verifyPassword()">驗證</button>
-            <button class="btn-link" id="back-btn" onclick="goBack('page-main')">返回主畫面</button>
-        </div>
+    // 後台可獨立控制每個月份是否開放查詢
+    if (!isMonthOpen_(month)) {
+      return ContentService.createTextOutput(JSON.stringify({status:"not_open", msg:"該月份薪資尚未開放查詢"})).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      // B欄姓名(data[i][1])，C欄密碼(data[i][2])
+      if (data[i][1] && data[i][1].toString().trim() === name && data[i][2] && data[i][2].toString().trim() === password) {
+        
+        var hourlyWage = data[i][3]; // D欄 時薪
+        var hours = data[i][4];      // E欄 時數
+        
+        // 判斷是否已開放查詢：如果工時或時薪未填寫（空白），判定為尚未開放
+        if (hours === "" || hours === null || hours === undefined) {
+          return ContentService.createTextOutput(JSON.stringify({status: "not_open", msg: "該月份薪資尚未開放查詢"})).setMimeType(ContentService.MimeType.JSON);
+        }
 
-        <div id="page-slip" class="page">
-            <div id="capture-area" style="padding: 16px 12px; border-radius: 16px; background: var(--apple-bg);">
-                <h2 id="slip-title" style="font-size: 24px; text-align: center; margin-bottom: 20px;">薪資明細表</h2>
-                <div class="salary-slip">
-                    <div class="slip-row"><span>員工姓名</span><span id="slip-name" style="font-weight: 500;"></span></div>
-                    <div class="slip-row"><span>時薪</span><span id="slip-wage"></span></div>
-                    <div class="slip-row"><span>本月時數</span><span id="slip-hours"></span></div>
-                    <div class="slip-row"><span>遲到 (分)</span><span id="slip-latemin"></span></div>
-                    <div class="slip-row"><span>預支</span><span id="slip-advance" class="deduct-style"></span></div>
-                    <div class="slip-row"><span>營損</span><span id="slip-loss" class="deduct-style"></span></div>
-                    <div class="slip-row"><span>缺失次數</span><span id="slip-missing"></span></div>
-                    <div class="slip-row"><span>遲到次數</span><span id="slip-latecount"></span></div>
-                    <div class="slip-total-container">
-                        <div class="slip-total"><span>實領薪資</span><span id="slip-total"></span></div>
-                        <span class="bonus-tip">（不含獎金）</span>
-                    <div class="salary-calculation" id="salary-calculation"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="img-preview-container" id="preview-box">
-                <div class="preview-tip">✨ 圖片已在下方產生！請長按圖片儲存</div>
-                <img id="generated-img" class="generated-salary-img" src="" alt="薪資單圖片">
-            </div>
+        var result = {
+          hourlyWage: hourlyWage || 0,  // D欄 時薪
+          hours: hours || 0,            // E欄 時數
+          lateMin: data[i][5] || 0,     // F欄 遲到(分)
+          advance: data[i][6] || 0,     // G欄 預支
+          loss: data[i][7] || 0,        // H欄 營損
+          totalSalary: data[i][8] || 0, // I欄 實領薪資
+          missing: data[i][9] || 0,     // J欄 缺失次數
+          lateCount: data[i][10] || 0   // K欄 遲到次數
+        };
+        return ContentService.createTextOutput(JSON.stringify({status:"success", data:result})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({status:"password_error"})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
-            <button class="btn-primary" style="margin-top: 24px;" id="action-btn" onclick="downloadSlip()">產生薪資單圖片</button>
-            <button class="btn-link" onclick="logout()">安全登出</button>
-        </div>
-    </div>
-</div>
+function isMonthOpen_(month) {
+  var settings = ss.getSheetByName("_後台設定");
+  if (!settings || settings.getLastRow() < 2) return true;
 
-<script src="app.js"></script>
-</body>
-</html>
+  var values = settings.getRange(2, 1, settings.getLastRow() - 1, 2).getValues();
+  for (var i = 0; i < values.length; i++) {
+    if (String(values[i][0]).trim() === String(month).trim()) {
+      return values[i][1] !== false && String(values[i][1]).toUpperCase() !== "FALSE";
+    }
+  }
+  return true;
+}
+
+function keepAlive() {
+  // 用來保持伺服器清醒的空指令
+  Logger.log("Keep alive tick");
+}
