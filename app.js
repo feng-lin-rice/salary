@@ -48,7 +48,9 @@ function initSystem() {
             data.months.forEach((m) => {
                 let opt = document.createElement('option');
                 opt.value = m; 
-                opt.innerText = m;
+                const isOpen = globalOpenMonths.includes(m);
+                opt.innerText = isOpen ? m : `${m} 🔒`;
+                opt.disabled = !isOpen;
 
                 // 2. 從分頁名稱（如 "2026年8月" 或 "2026年08月"）解析數字
                 const matches = m.match(/(\d{4})年\s*(\d{1,2})月/);
@@ -113,6 +115,7 @@ function renderEmployeeButtons(targetMonth) {
         let btn = document.createElement('button');
         btn.className = 'emp-btn';
         btn.innerText = name;
+        btn.dataset.initial = name.trim().charAt(0);
         btn.onclick = () => selectEmployee(name);
         employeeBox.appendChild(btn);
     });
