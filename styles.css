@@ -48,6 +48,7 @@ body {
     flex-direction: column;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     height: -webkit-fill-available;
     color: var(--apple-text);
     transition: background-color 0.6s var(--apple-ease), color 0.6s var(--apple-ease);
@@ -98,7 +99,7 @@ body {
     width: 100%;
     max-width: 440px;
     margin: 0 auto;
-    padding: 80px 24px 24px 24px;
+    padding: clamp(62px, 9vh, 80px) 24px clamp(12px, 3vh, 24px);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -119,7 +120,7 @@ body {
     display: none; 
     opacity: 0; 
     width: 100%; 
-    max-height: 80vh; 
+    max-height: calc(100dvh - 76px); 
     overflow-y: auto; 
     padding: 4px;
     box-sizing: border-box;
@@ -224,4 +225,25 @@ input[type="password"]:focus, input[type="text"]:focus { border-bottom-color: va
 .usage-guide { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin:-12px 0 24px; color:var(--apple-text-gray); font-size:12px; }
 .usage-guide span { background:var(--input-bg); border-radius:999px; padding:7px 10px; }
 .salary-calculation { margin-top:14px; padding:12px; border-radius:12px; background:var(--input-bg); color:var(--apple-text-gray); font-size:12px; line-height:1.6; text-align:center; }
-@media (max-width:420px){.apple-nav{padding:0 18px}.main-wrapper{padding:72px 16px 20px}h2{font-size:26px;margin-bottom:20px}.employee-grid{grid-template-columns:1fr;gap:10px;max-height:46vh}.emp-btn{min-height:56px;font-size:17px}select{min-height:48px;font-size:16px}.btn-primary{min-height:52px;font-size:16px}}
+@media (max-width: 420px) {
+    .apple-nav { padding: 0 18px; }
+    .main-wrapper { padding: clamp(58px, 8vh, 72px) 14px 12px; }
+    h2 { font-size: clamp(23px, 7vw, 26px); margin-bottom: clamp(12px, 2.5vh, 20px); }
+    .welcome-msg { margin-bottom: clamp(14px, 3vh, 28px); }
+    .usage-guide { gap: 5px; margin: -6px 0 clamp(12px, 2.5vh, 20px); }
+    .usage-guide span { padding: 5px 7px; font-size: 11px; }
+    .input-group { margin-bottom: clamp(14px, 3vh, 28px); }
+    .employee-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; max-height: none; margin-top: 12px; overflow: visible; }
+    .emp-btn { min-height: clamp(46px, 7vh, 54px); padding: 10px 6px; font-size: 16px; }
+    select { min-height: 48px; font-size: 16px; }
+    .btn-primary { min-height: 52px; font-size: 16px; }
+}
+@media (max-width: 319px) { .employee-grid { grid-template-columns: 1fr; } }
+@media (max-height: 650px) {
+    .apple-nav { height: 42px; }
+    .main-wrapper { padding-top: 50px; }
+    h2 { font-size: 22px; margin-bottom: 10px; }
+    .welcome-msg, .usage-guide, .input-group { margin-bottom: 10px; }
+    .employee-grid { margin-top: 8px; gap: 6px; }
+    .emp-btn { min-height: 42px; padding: 8px 5px; }
+}
