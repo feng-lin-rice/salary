@@ -165,7 +165,7 @@ input[type="password"]:focus, input[type="text"]:focus { border-bottom-color: va
 .remember-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px; font-size: 13px; color: var(--apple-text-gray); cursor: pointer; user-select: none; }
 
 .employee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-height: 260px; overflow-y: auto; padding: 4px; margin: 20px auto 0 auto; }
-.emp-btn { background-color: var(--input-bg); border: 1px solid var(--apple-border); border-radius: 12px; padding: 16px; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--apple-text); transition: all 0.2s var(--apple-ease); letter-spacing: -0.01em; }
+.emp-btn { min-height: 54px; background-color: var(--input-bg); border: 1px solid var(--apple-border); border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer; color: var(--apple-text); transition: all 0.2s var(--apple-ease); letter-spacing: -0.01em; touch-action: manipulation; }
 .emp-btn:hover { background-color: var(--apple-blue); color: white; border-color: transparent; transform: translateY(-1px); }
 .emp-btn:active { transform: translateY(0); }
 
@@ -220,3 +220,8 @@ input[type="password"]:focus, input[type="text"]:focus { border-bottom-color: va
     20%, 60% { transform: translateX(-10px); }
     40%, 80% { transform: translateX(10px); }
 }
+
+.usage-guide { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin:-12px 0 24px; color:var(--apple-text-gray); font-size:12px; }
+.usage-guide span { background:var(--input-bg); border-radius:999px; padding:7px 10px; }
+.salary-calculation { margin-top:14px; padding:12px; border-radius:12px; background:var(--input-bg); color:var(--apple-text-gray); font-size:12px; line-height:1.6; text-align:center; }
+@media (max-width:420px){.apple-nav{padding:0 18px}.main-wrapper{padding:72px 16px 20px}h2{font-size:26px;margin-bottom:20px}.employee-grid{grid-template-columns:1fr;gap:10px;max-height:46vh}.emp-btn{min-height:56px;font-size:17px}select{min-height:48px;font-size:16px}.btn-primary{min-height:52px;font-size:16px}}
