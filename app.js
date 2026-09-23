@@ -1,5 +1,6 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbxD_-fXGQmUl-PsO5VgmVwSCkWiWoLkHz08FkfVCfkx3i6CZLrzqS5T2sTpEEpcpDYn/exec"; 
 let globalMonthlyData = {}; // 暫存各月份的名單
+let globalOpenMonths = [];
 
 window.onload = function() { initTheme(); updateGreeting(); initSystem(); };
 
@@ -31,6 +32,7 @@ function initSystem() {
     .then(data => {
         const monthSelect = document.getElementById('month-select');
         globalMonthlyData = data.monthlyData || {};
+        globalOpenMonths = data.openMonths || data.months || [];
         
         // 1. 計算預設目標：上一個月的年份與月份數字
         const today = new Date();
@@ -56,7 +58,7 @@ function initSystem() {
                     const optMonth = parseInt(matches[2], 10);
 
                     // 3. 比對年份與月份
-                    if (optYear === targetYear && optMonth === targetMonth && !selectedTargetMonth) {
+                    if (optYear === targetYear && optMonth === targetMonth && globalOpenMonths.includes(m) && !selectedTargetMonth) {
                         opt.selected = true;
                         selectedTargetMonth = m;
                     }
@@ -72,10 +74,11 @@ function initSystem() {
                 monthSelect.appendChild(opt);
             });
 
-            // 若比對不到上個月，則預設選取下拉選單中的第一個選項
+            // 上個月尚未開放時，選擇最近一個已開放的月份
             if (!selectedTargetMonth) {
-                selectedTargetMonth = data.months[0];
-                monthSelect.options[0].selected = true;
+                const openOptions = data.months.filter(month => globalOpenMonths.includes(month));
+                selectedTargetMonth = openOptions.sort((a, b) => monthKey(b) - monthKey(a))[0] || data.months[0];
+                monthSelect.value = selectedTargetMonth;
             }
         }
 
@@ -89,7 +92,7 @@ function initSystem() {
     })
     .catch(err => {
         console.error(err);
-        alert("系統載入失敗，請重新整理頁面。");
+        document.querySelector('#page-loading div:last-child').innerText = "目前無法連線，請檢查網路後重新整理。";
     });
 }
 
@@ -143,7 +146,8 @@ function togglePasswordVisibility() {
 
 function verifyPassword() {
     const inputPwd = document.getElementById('password').value;
-    if (!inputPwd) return; 
+    if (!inputPwd) { showError("請輸入身分證後 4 碼。"); return; }
+    if (inputPwd.length !== 4) { showError("請輸入完整的 4 位數字。"); return; } 
     
     const verifyBtn = document.getElementById('verify-btn');
     const backBtn = document.getElementById('back-btn');
@@ -151,9 +155,10 @@ function verifyPassword() {
     
     if (verifyBtn.disabled) return;
 
-    verifyBtn.innerHTML = '載入中<span class="dot-ani">.</span><span class="dot-ani">.</span><span class="dot-ani">.</span>';
+    verifyBtn.innerHTML = '正在查詢薪資<span class="dot-ani">.</span><span class="dot-ani">.</span><span class="dot-ani">.</span>';
     verifyBtn.disabled = true;
     backBtn.disabled = true;
+    document.getElementById('password').disabled = true;
 
     const selectedMonth = document.getElementById('month-select').value;
     errorMsg.classList.remove('text-shake'); 
@@ -177,6 +182,8 @@ function verifyPassword() {
             document.getElementById('slip-missing').innerText = d.missing + " 次";
             document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
             document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
+            const lateDeduction = Number(d.lateMin) * 10;
+            document.getElementById('salary-calculation').innerText = `${Number(d.hourlyWage).toLocaleString()} × ${d.hours} 小時－遲到 ${lateDeduction.toLocaleString()}－預支 ${Number(d.advance).toLocaleString()}－營損 ${Number(d.loss).toLocaleString()}＝${Number(d.totalSalary).toLocaleString()} 元`;
             
             document.getElementById('preview-box').style.display = 'none';
             document.getElementById('action-btn').style.display = 'block'; 
@@ -184,26 +191,21 @@ function verifyPassword() {
             switchPage('page-slip');
         } else if (data.status === "not_open") {
             // 尚未開放查詢提示
-            errorMsg.innerText = "該月份薪資尚未結算開放查詢。";
-            errorMsg.style.display = 'block';
-            void errorMsg.offsetWidth; 
-            errorMsg.classList.add('text-shake');
+            showError("這個月份尚未開放查詢，請改選其他月份。");
         } else {
             // 密碼錯誤提示
-            errorMsg.innerText = "密碼不正確。";
-            errorMsg.style.display = 'block';
-            void errorMsg.offsetWidth; 
-            errorMsg.classList.add('text-shake');
+            showError("驗證碼不正確，請確認身分證後 4 碼。");
         }
     })
     .catch(err => {
         console.error(err);
-        alert("連線發生錯誤，請稍後再試。");
+        showError("網路連線失敗，請稍後再試一次。");
     })
     .finally(() => {
         verifyBtn.innerHTML = "驗證";
         verifyBtn.disabled = false;
         backBtn.disabled = false;
+        document.getElementById('password').disabled = false;
     });
 }
 
@@ -241,6 +243,8 @@ function downloadSlip() {
     });
 }
 
+function monthKey(value) { const m = String(value).match(/(\d{4})年\s*(\d{1,2})月/); return m ? Number(m[1]) * 100 + Number(m[2]) : 0; }
+function showError(text) { const box = document.getElementById('error-txt'); box.innerText = text; box.style.display = 'block'; box.classList.remove('text-shake'); void box.offsetWidth; box.classList.add('text-shake'); }
 function switchPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function goBack(id) { switchPage(id); }
 function logout() { switchPage('page-main'); }
