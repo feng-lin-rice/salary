@@ -1,8 +1,40 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbxD_-fXGQmUl-PsO5VgmVwSCkWiWoLkHz08FkfVCfkx3i6CZLrzqS5T2sTpEEpcpDYn/exec"; 
 let globalMonthlyData = {}; // 暫存各月份的名單
 let globalOpenMonths = [];
+let previewUrl = "";
 
-window.onload = function() { initTheme(); updateGreeting(); initSystem(); };
+window.onload = function() {
+    initTheme();
+    updateGreeting();
+    document.getElementById('password').addEventListener('focus', keepAuthControlsVisible);
+    initSystem();
+};
+window.addEventListener('beforeunload', () => { if (previewUrl) URL.revokeObjectURL(previewUrl); });
+
+async function fetchJsonWithTimeout(url, timeout = 10000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+function setLoadingState(isLoading) {
+    document.getElementById('loading-title').innerText = isLoading ? '薪資查詢系統' : '目前無法連線';
+    document.getElementById('loading-active').hidden = !isLoading;
+    document.getElementById('loading-error').hidden = isLoading;
+    document.getElementById('retry-btn').disabled = isLoading;
+}
+
+function retryConnection() { initSystem(); }
+
+function keepAuthControlsVisible() {
+    setTimeout(() => document.getElementById('verify-btn').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+}
 
 function updateGreeting() {
     const hour = new Date().getHours();
@@ -26,10 +58,13 @@ function toggleTheme() {
     document.getElementById('theme-btn').innerText = newTheme === 'dark' ? '淺色模式' : '深色模式';
 }
 
-function initSystem() {
-    fetch(`${API_URL}?action=getInitData`)
-    .then(r => r.json())
-    .then(data => {
+async function initSystem() {
+    const retryBtn = document.getElementById('retry-btn');
+    if (retryBtn.disabled) return;
+    switchPage('page-loading');
+    setLoadingState(true);
+    try {
+        const data = await fetchJsonWithTimeout(`${API_URL}?action=getInitData`);
         const monthSelect = document.getElementById('month-select');
         globalMonthlyData = data.monthlyData || {};
         globalOpenMonths = data.openMonths || data.months || [];
@@ -90,12 +125,11 @@ function initSystem() {
         // 初始化繪製員工按鈕
         renderEmployeeButtons(selectedTargetMonth || monthSelect.value);
         
+        retryBtn.disabled = false;
         switchPage('page-main');
-    })
-    .catch(err => {
-        console.error(err);
-        document.querySelector('#page-loading div:last-child').innerText = "目前無法連線，請檢查網路後重新整理。";
-    });
+    } catch (err) {
+        setLoadingState(false);
+    }
 }
 
 // 根據選擇的月份動態顯示該月員工按鈕
@@ -147,7 +181,7 @@ function togglePasswordVisibility() {
     eye.innerText = pwd.type === "password" ? "顯示" : "隱藏";
 }
 
-function verifyPassword() {
+async function verifyPassword() {
     const inputPwd = document.getElementById('password').value;
     if (!inputPwd) { showError("請輸入身分證後 4 碼。"); return; }
     if (inputPwd.length !== 4) { showError("請輸入完整的 4 位數字。"); return; } 
@@ -167,9 +201,8 @@ function verifyPassword() {
     errorMsg.classList.remove('text-shake'); 
     errorMsg.style.display = 'none';
 
-    fetch(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(window.currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`)
-    .then(r => r.json())
-    .then(data => {
+    try {
+        const data = await fetchJsonWithTimeout(`${API_URL}?action=getSalary&month=${encodeURIComponent(selectedMonth)}&name=${encodeURIComponent(window.currentSelectedEmployee)}&password=${encodeURIComponent(inputPwd)}`);
         if (data.status === "success") {
             if (document.getElementById('remember-pwd').checked) {
                 localStorage.setItem('savedPwd_' + window.currentSelectedEmployee, inputPwd);
@@ -177,16 +210,16 @@ function verifyPassword() {
             const d = data.data;
             document.getElementById('slip-title').innerText = `${selectedMonth} 薪資明細`;
             document.getElementById('slip-name').innerText = window.currentSelectedEmployee;
-            document.getElementById('slip-wage').innerText = Number(d.hourlyWage).toLocaleString() + " 元";
+            document.getElementById('slip-wage').innerText = `${formatCurrency(d.hourlyWage)}／小時`;
             document.getElementById('slip-hours').innerText = d.hours + " 小時";
             document.getElementById('slip-latemin').innerText = d.lateMin + " 分鐘";
-            document.getElementById('slip-advance').innerText = "- " + Number(d.advance).toLocaleString() + " 元";
-            document.getElementById('slip-loss').innerText = "- " + Number(d.loss).toLocaleString() + " 元";
+            setDeduction('slip-advance', d.advance);
+            setDeduction('slip-loss', d.loss);
             document.getElementById('slip-missing').innerText = d.missing + " 次";
             document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
-            document.getElementById('slip-total').innerText = `$ ${Number(d.totalSalary).toLocaleString()}`;
+            document.getElementById('slip-total').innerText = formatCurrency(d.totalSalary);
             const lateDeduction = Number(d.lateMin) * 10;
-            document.getElementById('salary-calculation').innerText = `${Number(d.hourlyWage).toLocaleString()} × ${d.hours} 小時－遲到 ${lateDeduction.toLocaleString()}－預支 ${Number(d.advance).toLocaleString()}－營損 ${Number(d.loss).toLocaleString()}＝${Number(d.totalSalary).toLocaleString()} 元`;
+            document.getElementById('salary-calculation').innerText = `${formatCurrency(d.hourlyWage)} × ${d.hours} 小時－遲到 ${formatCurrency(lateDeduction)}－預支 ${formatCurrency(d.advance)}－營損 ${formatCurrency(d.loss)}＝${formatCurrency(d.totalSalary)}`;
             
             document.getElementById('preview-box').style.display = 'none';
             document.getElementById('action-btn').style.display = 'block'; 
@@ -199,51 +232,76 @@ function verifyPassword() {
             // 密碼錯誤提示
             showError("驗證碼不正確，請確認身分證後 4 碼。");
         }
-    })
-    .catch(err => {
-        console.error(err);
-        showError("網路連線失敗，請稍後再試一次。");
-    })
-    .finally(() => {
+    } catch (err) {
+        showError(err.name === 'AbortError' ? "查詢逾時，請稍後再試一次。" : "網路連線失敗，請稍後再試一次。");
+    } finally {
         verifyBtn.innerHTML = "驗證";
         verifyBtn.disabled = false;
         backBtn.disabled = false;
         document.getElementById('password').disabled = false;
-    });
+    }
 }
 
-function downloadSlip() {
+function formatCurrency(value) {
+    return `NT$ ${Number(value || 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 })}`;
+}
+
+function setDeduction(id, value) {
+    const element = document.getElementById(id);
+    const amount = Number(value || 0);
+    element.innerText = amount > 0 ? `−${formatCurrency(amount)}` : formatCurrency(0);
+    element.classList.toggle('deduct-style', amount > 0);
+}
+
+async function downloadSlip() {
     const captureArea = document.getElementById('capture-area');
     const previewBox = document.getElementById('preview-box');
     const generatedImg = document.getElementById('generated-img');
     const actionBtn = document.getElementById('action-btn');
+    const shareError = document.getElementById('share-error');
 
     const currentTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    actionBtn.disabled = true;
+    actionBtn.innerText = '正在產生薪資單…';
+    shareError.style.display = 'none';
 
-    html2canvas(captureArea, { 
-        scale: 2,
-        useCORS: true,
-        backgroundColor: currentTheme === 'dark' ? '#000000' : '#f5f5f7'
-    }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        
-        // 顯示預覽圖（供手機長按儲存）
-        generatedImg.src = imgData;
-        previewBox.style.display = 'block';
-        actionBtn.style.display = 'none';
-        previewBox.scrollIntoView({ behavior: 'smooth' });
-
-        // 自動觸發下載（電腦與支援的瀏覽器）
+    try {
+        const canvas = await html2canvas(captureArea, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: currentTheme === 'dark' ? '#000000' : '#f5f5f7'
+        });
+        const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('圖片產生失敗')), 'image/png'));
         const selectedMonth = document.getElementById('month-select').value;
         const empName = window.currentSelectedEmployee || "員工";
-        
-        const downloadLink = document.createElement('a');
-        downloadLink.href = imgData;
-        downloadLink.download = `${selectedMonth}_${empName}_薪資明細.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    });
+        const fileName = `${selectedMonth}_${empName}_薪資明細.png`;
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: fileName });
+        } else if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.matchMedia('(pointer: coarse)').matches) {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            previewUrl = URL.createObjectURL(blob);
+            generatedImg.src = previewUrl;
+            previewBox.style.display = 'block';
+            previewBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            const downloadUrl = URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = fileName;
+            downloadLink.click();
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+        }
+    } catch (err) {
+        if (err.name !== 'AbortError') {
+            shareError.innerText = '薪資單產生失敗，請稍後再試一次。';
+            shareError.style.display = 'block';
+        }
+    } finally {
+        actionBtn.disabled = false;
+        actionBtn.innerText = '儲存／分享薪資單';
+    }
 }
 
 function monthKey(value) { const m = String(value).match(/(\d{4})年\s*(\d{1,2})月/); return m ? Number(m[1]) * 100 + Number(m[2]) : 0; }
