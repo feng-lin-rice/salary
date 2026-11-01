@@ -215,7 +215,7 @@ async function verifyPassword() {
             document.getElementById('slip-latemin').innerText = d.lateMin + " 分鐘";
             setDeduction('slip-advance', d.advance);
             setDeduction('slip-loss', d.loss);
-            document.getElementById('slip-missing').innerText = d.missing + " 次";
+            document.getElementById('slip-missing').innerText = d.missing;
             document.getElementById('slip-latecount').innerText = d.lateCount + " 次";
             document.getElementById('slip-total').innerText = formatCurrency(d.totalSalary);
             const lateDeduction = Number(d.lateMin) * 10;
